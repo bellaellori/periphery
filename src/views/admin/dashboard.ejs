@@ -1,0 +1,107 @@
+<%- include('partials/head', { title: title, path: path, flash: flash }) %>
+
+<h1>Editorial desk</h1>
+
+<div class="statgrid">
+  <div><b><%= stats.published %></b><span>Published</span></div>
+  <div><b><%= stats.queued %></b><span>In the queue</span></div>
+  <div><b><%= stats.saved %></b><span>Marked relevant</span></div>
+  <div><b><%= stats.sources %></b><span>Active sources</span></div>
+  <div><b><%= stats.concepts %></b><span>Concepts</span></div>
+  <div><b><%= stats.demo %></b><span>Demo items</span></div>
+</div>
+
+<h2>Run the pipeline</h2>
+<p style="font-size:.82rem;color:#45403a;max-width:46rem">
+  Summariser: <strong><%= summariser %></strong>.
+  Internal scheduler: <strong><%= schedulerOn ? 'on' : 'off — driven externally' %></strong>.
+  Today is <%= today %><%= isLongReadDay ? ' — a Long Read day (' + flavour + ' selection)' : ' — not a Long Read day' %>.
+</p>
+<div class="adminform">
+  <form method="post" action="/admin/run/ingest"><button class="btn" type="submit">Ingest from all sources</button></form>
+  <form method="post" action="/admin/run/edition">
+    <input type="hidden" name="kind" value="daily">
+    <button class="btn btn--primary" type="submit">Build The Daily Observatory</button>
+  </form>
+  <form method="post" action="/admin/run/edition">
+    <input type="hidden" name="kind" value="long_read">
+    <button class="btn" type="submit">Build The Long Read</button>
+  </form>
+  <form method="post" action="/admin/run/reassess"><button class="btn" type="submit">Re-assess relevance</button></form>
+</div>
+
+<h2>Latest runs</h2>
+<% if (!runs.ingestion.length && !runs.generation.length) { %>
+  <p style="font-size:.85rem;color:#6f685e">Nothing has run yet.</p>
+<% } %>
+<% runs.ingestion.slice(0, 4).forEach(function (r) { %>
+  <div class="runline">
+    <span class="pill pill--<%= r.status %>"><%= r.status %></span>
+    <span>Ingestion #<%= r.id %></span>
+    <span style="color:#6f685e"><%= r.items_new %> new · <%= r.items_duplicate %> dup · <%= r.sources_ok %>/<%= r.sources_tried %> sources</span>
+    <span style="margin-left:auto;color:#97907f"><%= fmt.ago(r.finished_at || r.started_at) %></span>
+  </div>
+<% }) %>
+<% runs.generation.slice(0, 4).forEach(function (r) { %>
+  <div class="runline">
+    <span class="pill pill--<%= r.status %>"><%= r.status %></span>
+    <span><%= r.kind === 'daily' ? 'Daily' : 'Long Read' %> #<%= r.id %></span>
+    <span style="color:#6f685e"><%= r.selected %> of <%= r.candidates %> · <%= r.summariser %><%= r.edition_date ? ' · ' + r.edition_date : '' %></span>
+    <span style="margin-left:auto;color:#97907f"><%= fmt.ago(r.finished_at || r.started_at) %></span>
+  </div>
+<% }) %>
+<p style="margin-top:.8rem"><a href="/admin/runs" style="font-size:.78rem;text-decoration:underline">All runs and their logs →</a></p>
+
+<h2>Editions</h2>
+<div class="tablescroll"><table class="table">
+  <thead><tr><th>Date</th><th>Kind</th><th>Items</th><th>Status</th><th>By</th><th></th></tr></thead>
+  <tbody>
+    <% editions.forEach(function (e) { %>
+      <tr>
+        <td><a href="<%= e.kind === 'daily' ? '/daily/' : '/long-read/' %><%= e.edition_date %>"><%= e.edition_date %></a></td>
+        <td><%= e.title %></td>
+        <td><%= e.n %></td>
+        <td><span class="pill"><%= e.status %></span></td>
+        <td><%= e.generated_by || '—' %></td>
+        <td>
+          <form method="post" action="/admin/editions/<%= e.id %>/status" style="display:inline">
+            <input type="hidden" name="status" value="<%= e.status === 'published' ? 'draft' : 'published' %>">
+            <button class="linkbtn" type="submit"><%= e.status === 'published' ? 'unpublish' : 'publish' %></button>
+          </form>
+          <form method="post" action="/admin/editions/<%= e.id %>/delete" style="display:inline">
+            <button class="linkbtn" type="submit" onclick="return confirm('Delete this edition? The articles stay.')">delete</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table></div>
+
+<h2>Queue — ingested, not yet in an edition</h2>
+<% if (!queue.length) { %>
+  <p style="font-size:.85rem;color:#6f685e">Nothing waiting. Run an ingestion.</p>
+<% } else { %>
+<div class="tablescroll"><table class="table">
+  <thead><tr><th>Score</th><th>Title</th><th>Source</th><th>Category</th><th>Relevance</th><th></th></tr></thead>
+  <tbody>
+    <% queue.forEach(function (a) { %>
+      <tr>
+        <td><%= a.relevance_score.toFixed(1) %></td>
+        <td><a href="/admin/articles/<%= a.id %>"><%= a.title %></a>
+          <% if (a.is_periphery_pick) { %> <span class="pill">periphery</span><% } %>
+          <% if (a.peer_review_status === 'preprint') { %> <span class="pill">preprint</span><% } %>
+        </td>
+        <td><%= a.source_name %></td>
+        <td><%= categoryLabels[a.category] || a.category %></td>
+        <td><%= a.relevance_status %></td>
+        <td>
+          <form method="post" action="/admin/articles/<%= a.id %>/status/approved" style="display:inline"><button class="linkbtn" type="submit">approve</button></form>
+          <form method="post" action="/admin/articles/<%= a.id %>/status/rejected" style="display:inline"><button class="linkbtn" type="submit">reject</button></form>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table></div>
+<% } %>
+
+<%- include('partials/foot') %>

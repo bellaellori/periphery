@@ -1,0 +1,31 @@
+{
+  "name": "periphery",
+  "version": "1.0.0",
+  "description": "A personal research observatory — an automatically updated intellectual magazine.",
+  "type": "module",
+  "main": "src/server.js",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "migrate": "node -e \"import('./src/db/index.js').then(m => console.log('schema applied:', m.migrate()))\"",
+    "seed": "node scripts/seed.js all",
+    "seed:sources": "node scripts/seed.js sources",
+    "seed:profile": "node scripts/seed.js profile",
+    "seed:demo": "node scripts/seed.js demo",
+    "seed:clear": "node scripts/seed.js clear-demo",
+    "build:static": "node scripts/build-static.js docs",
+    "profile:export": "node scripts/ci.js export",
+    "pipeline": "node src/pipeline/run.js auto",
+    "pipeline:ingest": "node src/pipeline/run.js ingest",
+    "pipeline:daily": "node src/pipeline/run.js daily",
+    "pipeline:longread": "node src/pipeline/run.js longread",
+    "test": "node --test tests/*.test.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "ejs": "^6.0.1",
+    "express": "^5.2.1",
+    "fast-xml-parser": "^5.11.1"
+  }
+}

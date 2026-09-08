@@ -1,0 +1,32 @@
+<%- include('partials/head', { title: title, nav: nav, path: path, savedCount: savedCount }) %>
+
+<section class="wrap wrap--narrow">
+  <header class="edition edition--long">
+    <p class="edition__kicker"><%= flavourLabel %></p>
+    <h2 class="edition__title edition__title--long">The Long Read</h2>
+    <p class="edition__date"><%= fmt.long(edition.edition_date) %></p>
+    <% if (edition.standfirst) { %><p class="edition__standfirst"><%= edition.standfirst %></p><% } %>
+    <div class="rule rule--double"></div>
+    <% if (edition.editors_note) { %>
+      <p class="edition__note"><span class="label">From the desk</span> <%= edition.editors_note %></p>
+    <% } %>
+  </header>
+
+  <div class="longlist">
+    <% items.forEach(function (a, i) { %>
+      <div class="longlist__item">
+        <p class="longlist__num"><%= String(i + 1).padStart(2, '0') %></p>
+        <%- include('partials/card-long', { a: a, returnTo: '/long-read/' + edition.edition_date }) %>
+      </div>
+    <% }) %>
+  </div>
+
+  <div class="rule rule--thin"></div>
+  <nav class="pager">
+    <% if (neighbours.prev) { %><a href="/long-read/<%= neighbours.prev.edition_date %>">← <%= fmt.date(neighbours.prev.edition_date) %></a><% } else { %><span></span><% } %>
+    <a href="/archive" class="pager__mid">All editions</a>
+    <% if (neighbours.next) { %><a href="/long-read/<%= neighbours.next.edition_date %>"><%= fmt.date(neighbours.next.edition_date) %> →</a><% } else { %><span></span><% } %>
+  </nav>
+</section>
+
+<%- include('partials/foot') %>

@@ -1,0 +1,37 @@
+# Drive the pipeline from GitHub Actions when the host has no scheduler of its own.
+# Copy to .github/workflows/periphery.yml in the repository.
+#
+# Set two repository secrets:
+#   PERIPHERY_URL     https://your-periphery-host
+#   PERIPHERY_CRON_SECRET   the CRON_SECRET from the app's environment
+#
+# GitHub cron is UTC. 05:15 UTC is 07:15 in Stockholm during summer time and
+# 06:15 in winter — GitHub does not do daylight saving, so pick the hour you can
+# live with all year, or run twice and let the idempotence sort it out.
+
+name: PERIPHERY pipeline
+
+on:
+  schedule:
+    - cron: '15 5 * * *'      # every day: ingest + The Daily Observatory,
+                              # and The Long Read on Wed/Sat/Sun (the app decides)
+  workflow_dispatch:           # and a button to run it by hand
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger the pipeline
+        run: |
+          code=$(curl -sS -o /tmp/out.json -w '%{http_code}' \
+            -X POST "${{ secrets.PERIPHERY_URL }}/api/pipeline/run" \
+            -H "content-type: application/json" \
+            -H "x-cron-secret: ${{ secrets.PERIPHERY_CRON_SECRET }}" \
+            --max-time 600 -d '{}')
+          echo "HTTP $code"
+          cat /tmp/out.json
+          test "$code" = "200"
+
+      - name: Confirm the run is healthy
+        run: |
+          curl -sS --fail "${{ secrets.PERIPHERY_URL }}/api/health" | tee /tmp/health.json

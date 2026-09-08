@@ -1,0 +1,15 @@
+<%- include('partials/head', { title: title, nav: nav, path: path, savedCount: savedCount }) %>
+<section class="wrap wrap--narrow">
+  <header class="edition">
+    <p class="edition__kicker">Notice</p>
+    <h2 class="edition__title">This is demo content</h2>
+    <div class="rule rule--double"></div>
+  </header>
+  <div class="prose prose--lead">
+    <p class="has-dropcap">The entry you came from is part of a small labelled demo set, loaded so the interface can be looked at before the pipeline has run.</p>
+    <p>It has no external source link because it is not a report of a real study, and inventing a plausible-looking URL for it would be worse than having none. Real entries always carry the source they came from.</p>
+    <p>Remove the demo set at any time with <code>npm run seed:clear</code>. It cannot be selected into an edition alongside real material once real material exists.</p>
+    <p><a class="readon" href="/">Back to the front page →</a></p>
+  </div>
+</section>
+<%- include('partials/foot') %>

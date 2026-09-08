@@ -1,0 +1,35 @@
+<%- include('partials/head', { title: title, nav: nav, path: path, savedCount: savedCount }) %>
+<section class="wrap">
+  <header class="edition">
+    <p class="edition__kicker">Back numbers</p>
+    <h2 class="edition__title">Archive</h2>
+    <div class="rule rule--double"></div>
+  </header>
+
+  <% if (!editions.length) { %>
+    <p class="empty__lead">No editions yet.</p>
+  <% } else { %>
+    <div class="tablescroll"><table class="table table--archive">
+      <thead><tr><th>Date</th><th>Edition</th><th>Items</th><th>Standfirst</th></tr></thead>
+      <tbody>
+        <% editions.forEach(function (e) { %>
+          <tr>
+            <td class="nowrap"><%= fmt.date(e.edition_date) %></td>
+            <td><a href="<%= e.kind === 'daily' ? '/daily/' : '/long-read/' %><%= e.edition_date %>"><%= e.title %></a></td>
+            <td><%= e.n %></td>
+            <td class="dim"><%= e.standfirst || '' %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table></div>
+  <% } %>
+
+  <% if (recent.length) { %>
+    <div class="rule rule--double"></div>
+    <h3 class="minor__title">Everything published, most recent first</h3>
+    <div class="grid grid--3">
+      <% recent.forEach(function (a) { %><%- include('partials/card-brief', { a: a }) %><% }) %>
+    </div>
+  <% } %>
+</section>
+<%- include('partials/foot') %>

@@ -1,0 +1,27 @@
+# systemd unit for a VPS.
+#   sudo cp deploy/periphery.service /etc/systemd/system/
+#   sudo systemctl enable --now periphery
+
+[Unit]
+Description=PERIPHERY — personal research observatory
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=periphery
+WorkingDirectory=/srv/periphery
+ExecStart=/usr/bin/node --env-file=/srv/periphery/.env src/server.js
+Restart=always
+RestartSec=5
+Environment=NODE_ENV=production
+
+# The database is the only thing that must survive; everything else is read-only.
+ReadWritePaths=/srv/periphery/data
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=multi-user.target

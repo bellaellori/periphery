@@ -1,0 +1,32 @@
+<%- include('partials/head', { title: title, path: path, flash: flash }) %>
+<h1>Research interests</h1>
+<p style="font-size:.82rem;color:#45403a;max-width:46rem">The full editor lives on the public side at <a href="/profile" style="text-decoration:underline">/profile</a>, where there is room to write. This is the same data in a compact view.</p>
+
+<h2>Profile</h2>
+<p style="font-size:.95rem;font-family:var(--serif);max-width:44rem;background:#f6f4ee;border:1px solid #ddd7ca;padding:1rem">
+  <%= profile.statement || '(no research statement written — selection is running on the structured terms alone)' %>
+</p>
+<p style="font-size:.78rem;color:#6f685e">Periphery appetite <%= profile.periphery_appetite %> · daily size <%= profile.daily_size %> · long read size <%= profile.longread_size %> · updated <%= fmt.ago(profile.updated_at) %></p>
+
+<h2>Terms</h2>
+<div class="tablescroll"><table class="table">
+  <thead><tr><th>Kind</th><th>Value</th><th>Weight</th><th>Active</th><th>Expires</th></tr></thead>
+  <tbody>
+    <% interests.forEach(function (i) { %>
+      <tr><td><%= i.kind %></td><td><%= i.value %></td><td><%= i.weight %></td>
+        <td><%= i.active ? 'yes' : 'paused' %></td><td><%= i.expires_on || '—' %></td></tr>
+    <% }) %>
+  </tbody>
+</table></div>
+<% if (!interests.length) { %><p style="font-size:.85rem;color:#6f685e">No interests set — everything will score zero and no edition can be built.</p><% } %>
+
+<h2>Periphery map</h2>
+<div class="tablescroll"><table class="table">
+  <thead><tr><th>Concept</th><th>Adjacent term</th><th>Field</th><th>Strength</th></tr></thead>
+  <tbody>
+    <% adjacency.forEach(function (r) { %>
+      <tr><td><%= r.concept %></td><td><%= r.adjacent %></td><td><%= r.field || '—' %></td><td><%= r.strength %></td></tr>
+    <% }) %>
+  </tbody>
+</table></div>
+<%- include('partials/foot') %>

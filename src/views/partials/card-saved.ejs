@@ -1,0 +1,16 @@
+<article class="saved">
+  <h4 class="saved__title"><a href="/article/<%= a.slug %>"><%= a.title %></a></h4>
+  <p class="saved__meta">
+    <a href="/category/<%= a.category %>"><%= a.category_label || a.category %></a>
+    <span class="meta__sep">·</span><%= a.source_name %><% if (a.reading_time_min) { %><span class="meta__sep">·</span><%= fmt.minutes(a.reading_time_min) %><% } %><% if (a.peer_review_status === 'preprint') { %><span class="meta__sep">·</span><span class="saved__preprint">preprint</span><% } %><% if (a.is_demo) { %><span class="meta__sep">·</span><span class="saved__demo">demo</span><% } %>
+  </p>
+  <% if (a.tags.length) { %>
+    <p class="saved__tags">
+      <% a.tags.forEach(function (t) { %><a href="/research?concept=<%= t.slug %>"><%= t.name %></a><% }) %>
+    </p>
+  <% } %>
+  <div class="saved__actions">
+    <% if (!a.is_demo) { %><a class="saved__src" href="<%= a.source_url %>" rel="noopener noreferrer" target="_blank">source ↗</a><% } %>
+    <%- include('relevant', { a: a, returnTo: typeof returnTo !== 'undefined' ? returnTo : '/research' }) %>
+  </div>
+</article>

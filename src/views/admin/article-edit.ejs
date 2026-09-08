@@ -1,0 +1,95 @@
+<%- include('partials/head', { title: title, path: path, flash: flash }) %>
+
+<p style="font-size:.75rem"><a href="/admin/articles">← All material</a>
+  <% if (article.status === 'published') { %> · <a href="/article/<%= article.slug %>">View on the site ↗</a><% } %>
+  · <a href="<%= article.source_url %>" target="_blank" rel="noopener">Original ↗</a></p>
+
+<h1 style="font-size:1.3rem"><%= article.title %></h1>
+<p style="font-size:.78rem;color:#6f685e">
+  <%= article.source_name %> · <%= article.relevance_status %> (<%= article.relevance_score %>)
+  <% if (article.is_periphery_pick) { %> · periphery bridge: <%= article.periphery_bridge %><% } %>
+  · summary: <%= article.summary_provenance %>
+  <% if (editions.length) { %> · in <%= editions.map(function (e) { return e.title + ' ' + e.edition_date; }).join(', ') %><% } %>
+</p>
+<% if (article.relevance_rationale) { %><p style="font-size:.8rem;color:#45403a"><em><%= article.relevance_rationale %></em></p><% } %>
+
+<form method="post" action="/admin/articles/<%= article.id %>">
+  <h2>Editorial</h2>
+  <div class="adminfields">
+    <label>Title<input type="text" name="title" value="<%= article.title %>"></label>
+    <label>Dek / standfirst<input type="text" name="dek" value="<%= article.dek || '' %>"></label>
+  </div>
+  <label style="display:block;margin-top:1rem;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#97907f">Short summary
+    <textarea name="short_summary" rows="2"><%= article.short_summary || '' %></textarea></label>
+  <label style="display:block;margin-top:1rem;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#97907f">Research summary
+    <textarea name="research_summary" rows="7"><%= article.research_summary || '' %></textarea></label>
+
+  <h2>The six questions</h2>
+  <% [['what_happened','What happened'],['what_they_did','What they did'],['what_they_found','What they found'],
+      ['evidence_strength','How strong the evidence is'],['why_interesting','Why it is interesting'],
+      ['broader_question','Broader question'],['why_it_matters','Why it matters'],
+      ['connection_to_research','Connection to my research']].forEach(function (f) { %>
+    <label style="display:block;margin-top:.8rem;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#97907f"><%= f[1] %>
+      <textarea name="<%= f[0] %>" rows="3"><%= article[f[0]] || '' %></textarea></label>
+  <% }) %>
+
+  <h2>Long-form apparatus</h2>
+  <% [['selection_rationale','Why selected'],['intellectual_territory','Territory'],['concepts_raised','Concepts raised']].forEach(function (f) { %>
+    <label style="display:block;margin-top:.8rem;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#97907f"><%= f[1] %>
+      <textarea name="<%= f[0] %>" rows="2"><%= article[f[0]] || '' %></textarea></label>
+  <% }) %>
+
+  <h2>Classification and provenance</h2>
+  <div class="adminfields">
+    <label>Category
+      <select name="category">
+        <% Object.keys(categoryLabels).forEach(function (k) { %>
+          <option value="<%= k %>" <%= article.category === k ? 'selected' : '' %>><%= categoryLabels[k] %></option>
+        <% }) %>
+      </select></label>
+    <label>Publication type
+      <select name="publication_type">
+        <% ['paper','preprint','review','essay','report','investigation','book_chapter','article'].forEach(function (k) { %>
+          <option value="<%= k %>" <%= article.publication_type === k ? 'selected' : '' %>><%= k %></option>
+        <% }) %>
+      </select></label>
+    <label>Peer review status
+      <select name="peer_review_status">
+        <% ['peer_reviewed','preprint','not_applicable','unknown'].forEach(function (k) { %>
+          <option value="<%= k %>" <%= article.peer_review_status === k ? 'selected' : '' %>><%= k %></option>
+        <% }) %>
+      </select></label>
+    <label>Relevance
+      <select name="relevance_status">
+        <% ['core','adjacent','periphery','background','unassessed'].forEach(function (k) { %>
+          <option value="<%= k %>" <%= article.relevance_status === k ? 'selected' : '' %>><%= k %></option>
+        <% }) %>
+      </select></label>
+    <label>Status
+      <select name="status">
+        <% ['ingested','approved','published','rejected'].forEach(function (k) { %>
+          <option value="<%= k %>" <%= article.status === k ? 'selected' : '' %>><%= k %></option>
+        <% }) %>
+      </select></label>
+    <label>Long form
+      <select name="is_long_form">
+        <option value="0" <%= article.is_long_form ? '' : 'selected' %>>no</option>
+        <option value="1" <%= article.is_long_form ? 'selected' : '' %>>yes</option>
+      </select></label>
+    <label>Source name<input type="text" name="source_name" value="<%= article.source_name %>"></label>
+    <label>Source URL<input type="url" name="source_url" value="<%= article.source_url %>"></label>
+    <label>Authors<input type="text" name="authors" value="<%= article.authors || '' %>"></label>
+    <label>Publication date<input type="date" name="publication_date" value="<%= article.publication_date || '' %>"></label>
+    <label>Concepts (comma separated)<input type="text" name="tags" value="<%= article.tags.map(function (t) { return t.name; }).join(', ') %>"></label>
+  </div>
+
+  <p style="margin-top:1.4rem"><button class="btn btn--primary" type="submit">Save</button></p>
+</form>
+
+<h2>Retrieved excerpt</h2>
+<p style="font-size:.7rem;color:#97907f">What the source actually returned. Held for summarisation; never republished on the public site.</p>
+<div style="font-family:var(--serif);font-size:.92rem;line-height:1.5;background:#f6f4ee;border:1px solid #ddd7ca;padding:1rem;max-height:22rem;overflow:auto">
+  <%= excerpt || '(none retrieved)' %>
+</div>
+
+<%- include('partials/foot') %>

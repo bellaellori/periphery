@@ -1,0 +1,13 @@
+<article class="card <%= a.is_periphery_pick ? 'card--periphery' : '' %>">
+  <p class="kicker"><a href="/category/<%= a.category %>"><%= a.category_label || a.category %></a></p>
+  <h3 class="card__title"><a href="/article/<%= a.slug %>"><%= a.title %></a></h3>
+  <% if (a.dek) { %><p class="card__dek"><%= a.dek %></p><% } %>
+  <% if (a.short_summary) { %><p class="card__summary"><%= a.short_summary %></p><% } %>
+  <div class="card__flags"><%- include('flags', { a: a }) %></div>
+  <div class="card__foot">
+    <p class="byline">
+      <%= a.source_name %><% if (a.authors) { %> · <%= fmt.authors(a.authors, 2) %><% } %><% if (a.reading_time_min) { %> · <%= fmt.minutes(a.reading_time_min) %><% } %>
+    </p>
+    <%- include('relevant', { a: a, returnTo: typeof returnTo !== 'undefined' ? returnTo : '' }) %>
+  </div>
+</article>

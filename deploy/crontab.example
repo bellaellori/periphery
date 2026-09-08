@@ -1,0 +1,20 @@
+# PERIPHERY — cron on a VPS or a machine that is always on.
+# Install with:  crontab -e
+#
+# Cron runs in the machine's local time unless CRON_TZ is set. PERIPHERY decides
+# which day it is from the machine clock too, so keep the two in agreement.
+CRON_TZ=Europe/Stockholm
+PERIPHERY=/srv/periphery
+
+# One entry is enough. "auto" ingests, always builds The Daily Observatory, and
+# additionally builds The Long Read on Wednesdays, Saturdays and Sundays.
+15 6 * * *  cd $PERIPHERY && /usr/bin/node --env-file=.env src/pipeline/run.js auto >> /var/log/periphery.log 2>&1
+
+# If you would rather keep the two jobs visibly separate, use these instead of
+# the line above:
+# 15 6 * * *    cd $PERIPHERY && /usr/bin/node --env-file=.env src/pipeline/run.js daily    >> /var/log/periphery.log 2>&1
+# 45 6 * * 3,6,0 cd $PERIPHERY && /usr/bin/node --env-file=.env src/pipeline/run.js longread >> /var/log/periphery.log 2>&1
+#                            ^ Wednesday, Saturday, Sunday
+
+# An extra afternoon sweep, if you want the library fuller without republishing:
+# 0 15 * * *  cd $PERIPHERY && /usr/bin/node --env-file=.env src/pipeline/run.js ingest >> /var/log/periphery.log 2>&1

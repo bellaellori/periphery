@@ -1,0 +1,50 @@
+<%- include('partials/head', { title: title, path: path, flash: flash }) %>
+<h1>All material</h1>
+
+<form class="adminform" method="get" action="/admin/articles">
+  <label>Search<input type="search" name="q" value="<%= filters.q %>"></label>
+  <label>Status
+    <select name="status">
+      <option value="">Any</option>
+      <% ['ingested','approved','published','rejected'].forEach(function (s) { %>
+        <option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= s %></option>
+      <% }) %>
+    </select>
+  </label>
+  <label>Category
+    <select name="category">
+      <option value="">Any</option>
+      <% Object.keys(categoryLabels).forEach(function (k) { %>
+        <option value="<%= k %>" <%= filters.category === k ? 'selected' : '' %>><%= categoryLabels[k] %></option>
+      <% }) %>
+    </select>
+  </label>
+  <button class="btn" type="submit">Filter</button>
+</form>
+
+<div class="tablescroll"><table class="table">
+  <thead><tr><th>Title</th><th>Source</th><th>Category</th><th>Rel.</th><th>Status</th><th>Ingested</th><th></th></tr></thead>
+  <tbody>
+    <% articles.forEach(function (a) { %>
+      <tr>
+        <td><a href="/admin/articles/<%= a.id %>"><%= a.title %></a>
+          <% if (a.is_demo) { %> <span class="pill">demo</span><% } %>
+          <% if (a.is_periphery_pick) { %> <span class="pill">periphery</span><% } %>
+        </td>
+        <td><%= a.source_name %></td>
+        <td><%= categoryLabels[a.category] || a.category %></td>
+        <td><%= a.relevance_status %> <span style="color:#97907f"><%= a.relevance_score.toFixed(1) %></span></td>
+        <td><span class="pill"><%= a.status %></span></td>
+        <td style="color:#97907f"><%= fmt.short(a.ingested_at) %></td>
+        <td>
+          <% if (a.status === 'published') { %><a href="/article/<%= a.slug %>">view</a><% } %>
+          <form method="post" action="/admin/articles/<%= a.id %>/delete" style="display:inline">
+            <button class="linkbtn" type="submit" onclick="return confirm('Delete permanently?')">delete</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table></div>
+<% if (!articles.length) { %><p style="font-size:.85rem;color:#6f685e">Nothing matches.</p><% } %>
+<%- include('partials/foot') %>

@@ -1,0 +1,43 @@
+## Fly.io — one machine, one volume, scheduled jobs run as Fly Machines.
+##
+##   fly launch --no-deploy --copy-config
+##   fly volumes create periphery_data --size 1 --region arn
+##   fly secrets set ADMIN_TOKEN=... CRON_SECRET=... ANTHROPIC_API_KEY=...
+##   fly deploy
+##
+## Then schedule the pipeline (see README, "Scheduling"). Two options on Fly:
+##   a) a separate scheduled Machine running `node src/pipeline/run.js auto`
+##   b) any external scheduler calling POST /api/pipeline/run with the CRON_SECRET
+
+app = "periphery"
+primary_region = "arn"        # Stockholm
+
+[build]
+
+[env]
+  PORT = "3000"
+  NODE_ENV = "production"
+  DATABASE_PATH = "/data/periphery.db"
+  ENABLE_INTERNAL_SCHEDULER = "0"
+
+[mounts]
+  source = "periphery_data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "suspend"
+  auto_start_machines = true
+  min_machines_running = 1     # keep one warm so scheduled runs are not cold
+
+  [[http_service.checks]]
+    grace_period = "15s"
+    interval = "60s"
+    method = "GET"
+    path = "/api/health"
+    timeout = "5s"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

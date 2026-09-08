@@ -1,0 +1,49 @@
+<%- include('partials/head', { title: title, nav: nav, path: path, savedCount: savedCount }) %>
+<section class="wrap wrap--narrow">
+  <header class="edition">
+    <p class="edition__kicker">Colophon</p>
+    <h2 class="edition__title">About PERIPHERY</h2>
+    <div class="rule rule--double"></div>
+  </header>
+
+  <div class="prose prose--lead">
+    <p class="has-dropcap">PERIPHERY watches a configured list of journals, preprint servers, institutions and publications, and brings back the things worth knowing — including things at the edges of the reader's existing interests, which is the part most reading systems get wrong.</p>
+    <p>Selection is driven by one thing only: the <a href="/profile">research profile</a>. Nothing about any particular reader's interests is written into the code. Change the profile and the whole library is re-assessed.</p>
+  </div>
+
+  <div class="rule rule--thin"></div>
+  <div class="qa">
+    <section class="qa__item">
+      <h2 class="qa__q">The periphery principle</h2>
+      <div class="prose">
+        <p>Matching a reader's own keywords returns what they already know how to find. The interesting material is usually the same problem in another discipline's vocabulary: closure in a biological control loop and termination in a distributed protocol; regulation in physiology and governance in an institution.</p>
+        <p>So the profile carries a second layer — a map of bridges from each concept to the terms neighbouring fields use for it. Anything matching a bridge but not the reader's own vocabulary is flagged as a periphery pick, and every edition reserves room for them.</p>
+      </div>
+    </section>
+    <section class="qa__item">
+      <h2 class="qa__q">On evidence</h2>
+      <div class="prose">
+        <p>Entries separate what was measured from what the authors take it to mean from what would only be a guess. Preprints are labelled as preprints wherever they appear. Where a summary was generated without a language model it says so, and the reader is told to go to the source.</p>
+      </div>
+    </section>
+    <section class="qa__item">
+      <h2 class="qa__q">On other people's writing</h2>
+      <div class="prose">
+        <p>PERIPHERY stores metadata, a summary and a link. It does not reproduce articles. Every entry names its source and points at the original, which remains the thing to read.</p>
+      </div>
+    </section>
+  </div>
+
+  <div class="rule rule--double"></div>
+  <h3 class="minor__title">The library at present</h3>
+  <ul class="aside__list aside__list--wide">
+    <li><span>Pieces held</span><%= stats.articles %></li>
+    <li><span>Published</span><%= stats.published %></li>
+    <li><span>Awaiting an edition</span><%= stats.queued %></li>
+    <li><span>Marked relevant</span><%= stats.saved %></li>
+    <li><span>Concepts</span><%= stats.concepts %></li>
+    <li><span>Active sources</span><%= stats.sources %></li>
+    <% if (stats.demo) { %><li><span>Demo items</span><%= stats.demo %> — clearly labelled, removable with <code>npm run seed:clear</code></li><% } %>
+  </ul>
+</section>
+<%- include('partials/foot') %>

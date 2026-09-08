@@ -1,0 +1,15 @@
+<%- include('partials/head', { title: title, nav: [], path: '/unlock' }) %>
+<section class="wrap wrap--narrow">
+  <div class="empty">
+    <h2 class="section__title">Private edition</h2>
+    <% if (error) { %><p class="notice notice--bad"><%= error %></p><% } %>
+    <form class="form" method="post" action="/unlock">
+      <label class="field">
+        <span class="field__label">Password</span>
+        <input type="password" name="password" autofocus>
+      </label>
+      <button class="btn btn--primary" type="submit">Enter</button>
+    </form>
+  </div>
+</section>
+<%- include('partials/foot') %>

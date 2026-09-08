@@ -1,0 +1,18 @@
+<%- include('partials/head', { title: title, nav: nav, path: path, savedCount: savedCount }) %>
+<section class="wrap wrap--narrow">
+  <header class="edition">
+    <p class="edition__kicker"><%= kind === 'daily' ? 'The daily edition' : 'Long-form reading' %></p>
+    <h2 class="edition__title"><%= title %></h2>
+    <div class="rule rule--double"></div>
+  </header>
+  <div class="empty">
+    <p class="empty__lead">No <%= kind === 'daily' ? 'daily edition' : 'long read' %> has been published yet.</p>
+    <% if (kind === 'long_read') { %>
+      <p>The Long Read is generated on Wednesdays, Saturdays and Sundays. <%= isLongReadDay ? 'Today is one of them — it has not run yet.' : 'Today is not one of them.' %></p>
+    <% } %>
+    <p>Run the pipeline from the <a href="/admin">editorial desk</a>, or on the command line:</p>
+    <pre class="code">npm run pipeline:<%= kind === 'daily' ? 'daily' : 'longread' %></pre>
+    <p class="empty__note">Selection depends entirely on your <a href="/profile">research profile</a> and your <a href="/admin/sources">source list</a>. If either is empty, the edition will be too.</p>
+  </div>
+</section>
+<%- include('partials/foot') %>

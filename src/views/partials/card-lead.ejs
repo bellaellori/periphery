@@ -1,0 +1,17 @@
+<article class="lead">
+  <p class="kicker kicker--lead"><a href="/category/<%= a.category %>"><%= a.category_label || a.category %></a></p>
+  <h2 class="lead__title"><a href="/article/<%= a.slug %>"><%= a.title %></a></h2>
+  <% if (a.dek) { %><p class="lead__dek"><%= a.dek %></p><% } %>
+  <div class="lead__body">
+    <% if (a.short_summary) { %><p class="lead__summary"><%= a.short_summary %></p><% } %>
+    <% if (a.what_they_found) { %><p class="lead__finding"><span class="label">The finding</span> <%= a.what_they_found %></p><% } %>
+  </div>
+  <div class="card__flags"><%- include('flags', { a: a }) %></div>
+  <p class="byline">
+    <%= a.source_name %><% if (a.authors) { %> · <%= fmt.authors(a.authors, 3) %><% } %><% if (a.publication_date) { %> · <%= fmt.date(a.publication_date) %><% } %>
+  </p>
+  <div class="lead__actions">
+    <a class="readon" href="/article/<%= a.slug %>">Read the full entry</a>
+    <%- include('relevant', { a: a, returnTo: typeof returnTo !== 'undefined' ? returnTo : '' }) %>
+  </div>
+</article>

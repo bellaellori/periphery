@@ -1,0 +1,111 @@
+<%- include('partials/head', { title: title, nav: nav, path: path, savedCount: savedCount }) %>
+
+<section class="wrap wrap--narrow">
+  <header class="edition">
+    <p class="edition__kicker">Configuration</p>
+    <h2 class="edition__title">Research profile</h2>
+    <p class="edition__standfirst">This is the only thing steering selection. Nothing about your interests is written into the code — change it here and every piece already held is re-assessed against the new profile.</p>
+    <div class="rule rule--double"></div>
+  </header>
+
+  <% if (saved) { %>
+    <p class="notice">Saved<% if (reassessed) { %> — <%= reassessed %> items re-assessed against the new profile<% } %>.</p>
+  <% } %>
+
+  <form class="form" method="post" action="/profile">
+    <label class="field">
+      <span class="field__label">Name on the masthead line</span>
+      <input type="text" name="display_name" value="<%= profile.display_name || '' %>" placeholder="optional">
+    </label>
+
+    <label class="field">
+      <span class="field__label">Current research statement</span>
+      <span class="field__hint">Prose. Written for a reader, not a search engine — what you are working on, what questions are open, what you keep circling. The selection system reads it alongside the structured terms below.</span>
+      <textarea name="statement" rows="7" placeholder="e.g. I am working on how biological regulation terminates — what makes a control loop close rather than run forever…"><%= profile.statement || '' %></textarea>
+    </label>
+
+    <div class="field__row">
+      <label class="field">
+        <span class="field__label">Periphery appetite</span>
+        <span class="field__hint">Share of each edition reserved for adjacent finds. 0 = only direct matches.</span>
+        <input type="number" name="periphery_appetite" step="0.05" min="0" max="0.9" value="<%= profile.periphery_appetite %>">
+      </label>
+      <label class="field">
+        <span class="field__label">Items per daily edition</span>
+        <input type="number" name="daily_size" min="3" max="20" value="<%= profile.daily_size %>">
+      </label>
+      <label class="field">
+        <span class="field__label">Items per long read</span>
+        <input type="number" name="longread_size" min="1" max="12" value="<%= profile.longread_size %>">
+      </label>
+    </div>
+
+    <button class="btn btn--primary" type="submit">Save profile and re-assess</button>
+  </form>
+
+  <div class="rule rule--double"></div>
+
+  <% kinds.forEach(function (k) { %>
+    <section class="interest" id="<%= k.kind %>">
+      <h3 class="interest__title"><%= k.label %></h3>
+      <p class="interest__hint"><%= k.hint %></p>
+      <% var rows = interests.filter(function (i) { return i.kind === k.kind; }); %>
+      <% if (rows.length) { %>
+        <ul class="chips">
+          <% rows.forEach(function (i) { %>
+            <li class="chip <%= i.active ? '' : 'chip--off' %>">
+              <span class="chip__value"><%= i.value %></span>
+              <% if (i.weight && i.weight !== 1) { %><span class="chip__weight">×<%= i.weight %></span><% } %>
+              <% if (i.expires_on) { %><span class="chip__until">until <%= fmt.short(i.expires_on) %></span><% } %>
+              <form method="post" action="/profile/interests/<%= i.id %>/toggle"><button type="submit" title="<%= i.active ? 'Pause' : 'Resume' %>"><%= i.active ? '◉' : '○' %></button></form>
+              <form method="post" action="/profile/interests/<%= i.id %>/delete"><button type="submit" title="Remove">×</button></form>
+            </li>
+          <% }) %>
+        </ul>
+      <% } else { %>
+        <p class="interest__empty">Nothing set.</p>
+      <% } %>
+      <form class="inline-form" method="post" action="/profile/interests">
+        <input type="hidden" name="kind" value="<%= k.kind %>">
+        <input type="text" name="value" placeholder="Add <%= k.label.toLowerCase() %>…" required>
+        <input type="number" name="weight" step="0.1" min="0.1" max="3" value="1" title="Weight" class="inline-form__weight">
+        <% if (k.kind === 'project') { %><input type="date" name="expires_on" title="Ends on"><% } %>
+        <button type="submit">Add</button>
+      </form>
+    </section>
+  <% }) %>
+
+  <div class="rule rule--double"></div>
+
+  <section class="interest" id="adjacency">
+    <h3 class="interest__title">The periphery map</h3>
+    <p class="interest__hint">This is what makes the system look sideways. Each row says: “when material talks about <em>this adjacent term</em>, in this field, it may be treating one of my concepts under another name.” A piece that matches an adjacent term but none of your own vocabulary becomes a periphery pick.</p>
+    <% if (adjacency.length) { %>
+      <div class="tablescroll"><table class="table">
+        <thead><tr><th>My concept</th><th>Adjacent term</th><th>Field</th><th>Strength</th><th></th></tr></thead>
+        <tbody>
+          <% adjacency.forEach(function (r) { %>
+            <tr>
+              <td><%= r.concept %></td>
+              <td><%= r.adjacent %></td>
+              <td><%= r.field || '—' %></td>
+              <td><%= r.strength %></td>
+              <td><form method="post" action="/profile/adjacency/<%= r.id %>/delete"><button class="linkbtn" type="submit">remove</button></form></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table></div>
+    <% } else { %>
+      <p class="interest__empty">No bridges configured — the system will only find direct matches.</p>
+    <% } %>
+    <form class="inline-form" method="post" action="/profile/adjacency">
+      <input type="text" name="concept" placeholder="my concept" required>
+      <input type="text" name="adjacent" placeholder="adjacent term" required>
+      <input type="text" name="field" placeholder="field">
+      <input type="number" name="strength" step="0.1" min="0.1" max="1.5" value="0.6" class="inline-form__weight">
+      <button type="submit">Add bridge</button>
+    </form>
+  </section>
+</section>
+
+<%- include('partials/foot') %>

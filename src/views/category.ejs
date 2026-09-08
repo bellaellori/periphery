@@ -1,0 +1,14 @@
+<%- include('partials/head', { title: title, nav: nav, path: path, savedCount: savedCount }) %>
+<section class="wrap">
+  <header class="edition">
+    <p class="edition__kicker">Section</p>
+    <h2 class="edition__title"><%= label %></h2>
+    <p class="edition__standfirst"><%= items.length %> <%= items.length === 1 ? 'piece' : 'pieces' %> published in this section.</p>
+    <div class="rule rule--double"></div>
+  </header>
+  <% if (!items.length) { %><p class="empty__lead">Nothing published in this section yet.</p><% } %>
+  <div class="grid grid--3">
+    <% items.forEach(function (a) { %><%- include('partials/card', { a: a, returnTo: '/category/' + key }) %><% }) %>
+  </div>
+</section>
+<%- include('partials/foot') %>

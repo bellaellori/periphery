@@ -1,0 +1,7 @@
+<p class="meta">
+  <a class="meta__cat" href="/category/<%= a.category %>"><%= a.category_label || a.category %></a>
+  <span class="meta__sep">·</span>
+  <span class="meta__source"><%= a.source_name %></span>
+  <% if (a.publication_date) { %><span class="meta__sep">·</span><span><%= fmt.short(a.publication_date) %></span><% } %>
+  <% if (a.reading_time_min) { %><span class="meta__sep">·</span><span><%= fmt.minutes(a.reading_time_min) %></span><% } %>
+</p>

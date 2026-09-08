@@ -1,0 +1,5 @@
+<article class="brief">
+  <h4 class="brief__title"><a href="/article/<%= a.slug %>"><%= a.title %></a></h4>
+  <p class="brief__meta"><%= a.category_label || a.category %> · <%= a.source_name %><% if (a.reading_time_min) { %> · <%= fmt.minutes(a.reading_time_min) %><% } %></p>
+  <% if (a.periphery_bridge) { %><p class="brief__bridge"><%= a.periphery_bridge %></p><% } %>
+</article>

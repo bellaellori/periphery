@@ -1,0 +1,14 @@
+<%- include('partials/head', { title: title, nav: nav, path: path, savedCount: savedCount }) %>
+<section class="wrap">
+  <header class="edition">
+    <p class="edition__kicker">Concept</p>
+    <h2 class="edition__title"><%= tag.name %></h2>
+    <% if (tag.description) { %><p class="edition__standfirst"><%= tag.description %></p><% } %>
+    <div class="rule rule--double"></div>
+  </header>
+  <% if (!items.length) { %><p class="empty__lead">Nothing filed under this concept yet.</p><% } %>
+  <div class="grid grid--3">
+    <% items.forEach(function (a) { %><%- include('partials/card', { a: a, returnTo: '/concept/' + tag.slug }) %><% }) %>
+  </div>
+</section>
+<%- include('partials/foot') %>

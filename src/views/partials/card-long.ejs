@@ -1,0 +1,29 @@
+<article class="longcard">
+  <div class="longcard__head">
+    <p class="kicker"><%= a.type_label || 'Reading' %><% if (a.reading_time_min) { %> · <%= fmt.minutes(a.reading_time_min) %><% } %></p>
+    <h3 class="longcard__title"><a href="/article/<%= a.slug %>"><%= a.title %></a></h3>
+    <% if (a.dek) { %><p class="longcard__dek"><%= a.dek %></p><% } %>
+    <p class="byline"><%= a.source_name %><% if (a.authors) { %> · <%= fmt.authors(a.authors, 3) %><% } %><% if (a.publication_date) { %> · <%= fmt.date(a.publication_date) %><% } %></p>
+  </div>
+  <div class="longcard__body">
+    <% if (a.selection_rationale) { %>
+      <p class="note"><span class="label">Why this</span> <%= a.selection_rationale %></p>
+    <% } %>
+    <% if (a.intellectual_territory) { %>
+      <p class="note"><span class="label">Territory</span> <%= a.intellectual_territory %></p>
+    <% } %>
+    <% if (a.concepts_raised) { %>
+      <p class="note"><span class="label">Puts in play</span> <%= a.concepts_raised %></p>
+    <% } %>
+    <div class="card__flags"><%- include('flags', { a: a }) %></div>
+    <div class="longcard__actions">
+      <% if (a.is_demo) { %>
+        <a class="readon readon--quiet" href="/demo-source">Demo entry — no external source</a>
+      <% } else { %>
+        <a class="readon readon--strong" href="<%= a.source_url %>" rel="noopener noreferrer" target="_blank">Read the original at <%= a.source_name %> ↗</a>
+      <% } %>
+      <a class="readon readon--quiet" href="/article/<%= a.slug %>">Our note on it</a>
+      <%- include('relevant', { a: a, returnTo: typeof returnTo !== 'undefined' ? returnTo : '' }) %>
+    </div>
+  </div>
+</article>

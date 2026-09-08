@@ -1,0 +1,10 @@
+<%- include('partials/head', { title: title, nav: typeof nav !== 'undefined' ? nav : [], path: typeof path !== 'undefined' ? path : '/' }) %>
+<section class="wrap wrap--narrow">
+  <header class="edition">
+    <p class="edition__kicker"><%= code %></p>
+    <h2 class="edition__title"><%= message %></h2>
+    <div class="rule rule--double"></div>
+  </header>
+  <p class="prose"><a class="readon" href="/">Back to the front page →</a></p>
+</section>
+<%- include('partials/foot') %>

@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Editorial desk — PERIPHERY</title>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/periphery.css">
+</head>
+<body class="admin">
+<div class="adminwrap" style="max-width:26rem;padding-top:4rem">
+  <h1>Editorial desk</h1>
+  <% if (error) { %><p class="notice notice--bad"><%= error %></p><% } %>
+  <form method="post" action="/admin/login">
+    <label style="display:block;margin-bottom:1rem">
+      <span style="font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:#6f685e;display:block;margin-bottom:.3rem">Admin token</span>
+      <input type="password" name="token" autofocus>
+    </label>
+    <button class="btn btn--primary" type="submit">Enter</button>
+  </form>
+  <p style="font-size:.78rem;color:#6f685e;margin-top:1.4rem">The token is whatever <code>ADMIN_TOKEN</code> is set to in the environment. With no token set, the desk is open — fine on a laptop, not on a public host.</p>
+</div>
+</body>
+</html>

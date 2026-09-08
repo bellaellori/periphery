@@ -1,0 +1,114 @@
+<%- include('partials/head', { title: title, nav: nav, path: path, savedCount: savedCount }) %>
+
+<% if (!daily && !longRead) { %>
+  <section class="wrap empty">
+    <h2 class="section__title">Nothing has been published yet</h2>
+    <p class="empty__lead">PERIPHERY has a database, a source list and a pipeline, but no edition. Two ways to change that:</p>
+    <ol class="empty__steps">
+      <li>Run the pipeline once — <code>npm run pipeline:daily</code> — or press <em>Build today's edition</em> in the <a href="/admin">editorial desk</a>.</li>
+      <li>Load the labelled demo set — <code>npm run seed:demo</code> — if you want to look at the furniture first.</li>
+    </ol>
+    <p class="empty__note">Before the first real run, set your interests in the <a href="/profile">research profile</a>. Selection is driven entirely by what is written there.</p>
+  </section>
+<% } else { %>
+
+<% if (daily) { %>
+<section class="wrap">
+  <div class="section__head">
+    <h2 class="section__title"><a href="/daily/<%= daily.edition_date %>">The Daily Observatory</a></h2>
+    <p class="section__date"><%= fmt.long(daily.edition_date) %></p>
+  </div>
+  <% if (daily.standfirst) { %><p class="section__standfirst"><%= daily.standfirst %></p><% } %>
+
+  <div class="front__top">
+    <div class="front__lead">
+      <% if (lead) { %><%- include('partials/card-lead', { a: lead, returnTo: '/' }) %><% } %>
+    </div>
+
+    <aside class="front__rail">
+      <% var railItems = dailyItems.filter(function (i) { return i.is_periphery_pick && (!lead || i.id !== lead.id); }); %>
+      <% if (railItems.length) { %>
+        <h3 class="rail__title">From the periphery</h3>
+        <p class="rail__note">Found by looking sideways: adjacent fields circling the same problem.</p>
+        <% railItems.slice(0, 4).forEach(function (a) { %>
+          <div class="rail__item">
+            <h4 class="rail__headline"><a href="/article/<%= a.slug %>"><%= a.title %></a></h4>
+            <p class="rail__meta"><%= a.category_label %> · <%= a.source_name %></p>
+            <% if (a.relevance_rationale) { %><p class="rail__why"><%= a.relevance_rationale %></p><% } %>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <h3 class="rail__title">In this edition</h3>
+        <ul class="rail__list">
+          <% dailyItems.forEach(function (a) { %>
+            <li><a href="/article/<%= a.slug %>"><%= a.title %></a></li>
+          <% }) %>
+        </ul>
+      <% } %>
+    </aside>
+  </div>
+
+  <% var rest = dailyItems.filter(function (i) { return (!lead || i.id !== lead.id) && !i.is_periphery_pick; }); %>
+  <% if (rest.length) { %>
+    <div class="rule rule--thin"></div>
+    <div class="grid grid--3">
+      <% rest.forEach(function (a) { %><%- include('partials/card', { a: a, returnTo: '/' }) %><% }) %>
+    </div>
+  <% } %>
+</section>
+<% } %>
+
+<% if (longRead && longReadItems.length) { %>
+<section class="wrap band">
+  <div class="band__inner">
+    <div class="section__head section__head--band">
+      <h2 class="section__title"><a href="/long-read/<%= longRead.edition_date %>">The Long Read</a></h2>
+      <p class="section__date"><%= fmt.long(longRead.edition_date) %></p>
+    </div>
+    <% if (longRead.standfirst) { %><p class="section__standfirst"><%= longRead.standfirst %></p><% } %>
+    <div class="grid grid--long">
+      <% longReadItems.forEach(function (a) { %><%- include('partials/card-long', { a: a, returnTo: '/' }) %><% }) %>
+    </div>
+    <p class="band__more"><a href="/long-read/<%= longRead.edition_date %>">The full selection →</a></p>
+  </div>
+</section>
+<% } %>
+
+<% if (periphery.length || more.length) { %>
+<section class="wrap">
+  <div class="rule rule--double"></div>
+  <div class="front__bottom">
+    <% if (periphery.length) { %>
+    <div class="front__bottomcol">
+      <h3 class="minor__title">Held at the edges</h3>
+      <p class="minor__note">Earlier periphery finds, still open.</p>
+      <% periphery.forEach(function (a) { %><%- include('partials/card-brief', { a: a }) %><% }) %>
+    </div>
+    <% } %>
+    <% if (more.length) { %>
+    <div class="front__bottomcol front__bottomcol--wide">
+      <h3 class="minor__title">Also in the library</h3>
+      <div class="grid grid--2">
+        <% more.forEach(function (a) { %><%- include('partials/card-brief', { a: a }) %><% }) %>
+      </div>
+    </div>
+    <% } %>
+  </div>
+</section>
+<% } %>
+
+<% if (editions.length > 1) { %>
+<section class="wrap">
+  <div class="rule rule--thin"></div>
+  <p class="editions">
+    <span class="editions__label">Recent editions</span>
+    <% editions.forEach(function (e, i) { %>
+      <a href="<%= e.kind === 'daily' ? '/daily/' : '/long-read/' %><%= e.edition_date %>"><%= fmt.short(e.edition_date) %><span class="editions__kind"><%= e.kind === 'daily' ? 'Observatory' : 'Long Read' %></span></a>
+    <% }) %>
+  </p>
+</section>
+<% } %>
+
+<% } %>
+
+<%- include('partials/foot') %>

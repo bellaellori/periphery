@@ -1,0 +1,52 @@
+<%- include('partials/head', { title: title, path: path, flash: flash }) %>
+<h1>Sources</h1>
+<p style="font-size:.82rem;color:#45403a;max-width:46rem">Retrieval is only as good as this list. Prefer primary sources: journal feeds, preprint servers, institutional newsrooms, dataset publishers. Quality tier 1 material is ranked ahead of tier 3 when two pieces score alike.</p>
+
+<div class="tablescroll"><table class="table">
+  <thead><tr><th>Name</th><th>Kind</th><th>Tier</th><th>Type</th><th>Last fetch</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+    <% sources.forEach(function (s) { %>
+      <tr style="<%= s.enabled ? '' : 'opacity:.5' %>">
+        <td><strong><%= s.name %></strong><br><span style="font-size:.7rem;color:#97907f;word-break:break-all"><%= s.url %></span></td>
+        <td><%= s.kind %></td>
+        <td><%= s.quality_tier %></td>
+        <td><%= s.publisher_type %></td>
+        <td style="color:#97907f"><%= s.last_fetched_at ? fmt.ago(s.last_fetched_at) : 'never' %></td>
+        <td style="font-size:.72rem;color:<%= (s.last_status || '').indexOf('error') === 0 ? '#7c1d1a' : '#45403a' %>"><%= s.last_status || '—' %></td>
+        <td>
+          <form method="post" action="/admin/sources/<%= s.id %>/test" style="display:inline"><button class="linkbtn" type="submit">test</button></form>
+          <form method="post" action="/admin/sources/<%= s.id %>/toggle" style="display:inline"><button class="linkbtn" type="submit"><%= s.enabled ? 'disable' : 'enable' %></button></form>
+          <form method="post" action="/admin/sources/<%= s.id %>/delete" style="display:inline"><button class="linkbtn" type="submit" onclick="return confirm('Remove this source?')">remove</button></form>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table></div>
+<% if (!sources.length) { %><p style="font-size:.85rem;color:#6f685e">No sources configured — nothing can be ingested. Add one below, or run <code>npm run seed:sources</code>.</p><% } %>
+
+<h2>Add a source</h2>
+<form class="adminform" method="post" action="/admin/sources">
+  <label>Name<input type="text" name="name" required></label>
+  <label>Feed / API URL<input type="url" name="url" required style="min-width:22rem"></label>
+  <label>Kind
+    <select name="kind">
+      <% ['rss','atom','arxiv','biorxiv','crossref','pubmed','json'].forEach(function (k) { %>
+        <option value="<%= k %>"><%= k %></option>
+      <% }) %>
+    </select></label>
+  <label>Publisher type
+    <select name="publisher_type">
+      <% ['journal','preprint','institution','magazine','dataset','other'].forEach(function (k) { %>
+        <option value="<%= k %>"><%= k %></option>
+      <% }) %>
+    </select></label>
+  <label>Tier
+    <select name="quality_tier"><option value="1">1 — primary</option><option value="2" selected>2 — strong</option><option value="3">3 — general</option></select></label>
+  <label>Default category
+    <select name="default_category">
+      <option value="">(infer)</option>
+      <% Object.keys(categoryLabels).forEach(function (k) { %><option value="<%= k %>"><%= categoryLabels[k] %></option><% }) %>
+    </select></label>
+  <button class="btn btn--primary" type="submit">Add</button>
+</form>
+<%- include('partials/foot') %>

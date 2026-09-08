@@ -1,0 +1,93 @@
+<%- include('partials/head', { title: title, nav: nav, path: path, savedCount: savedCount }) %>
+
+<section class="wrap">
+  <header class="edition">
+    <p class="edition__kicker">Personal collection</p>
+    <h2 class="edition__title">My Research</h2>
+    <p class="edition__standfirst">Everything marked relevant, gathered by concept. <%= items.length %> <%= items.length === 1 ? 'piece' : 'pieces' %><% if (conceptMap.length) { %> across <%= conceptMap.length %> concepts<% } %>.<% if (view === 'concepts') { %> A piece appears under every concept it carries, which is what makes this a map rather than a list.<% } %></p>
+    <div class="rule rule--double"></div>
+  </header>
+
+  <form class="filters" method="get" action="/research">
+    <div class="filters__row">
+      <label class="filters__field filters__field--grow">
+        <span>Search</span>
+        <input type="search" name="q" value="<%= filters.q %>" placeholder="title, author, source, summary">
+      </label>
+      <label class="filters__field">
+        <span>Category</span>
+        <select name="category">
+          <option value="">All</option>
+          <% categories.forEach(function (c) { %>
+            <option value="<%= c.category %>" <%= filters.category === c.category ? 'selected' : '' %>><%= c.label %> (<%= c.n %>)</option>
+          <% }) %>
+        </select>
+      </label>
+      <label class="filters__field">
+        <span>Concept</span>
+        <select name="concept">
+          <option value="">All</option>
+          <% conceptMap.forEach(function (c) { %>
+            <option value="<%= c.slug %>" <%= filters.concept === c.slug ? 'selected' : '' %>><%= c.name %> (<%= c.n %>)</option>
+          <% }) %>
+        </select>
+      </label>
+      <label class="filters__field">
+        <span>Sort</span>
+        <select name="sort">
+          <option value="saved_desc" <%= filters.sort === 'saved_desc' ? 'selected' : '' %>>Recently saved</option>
+          <option value="saved_asc" <%= filters.sort === 'saved_asc' ? 'selected' : '' %>>First saved</option>
+          <option value="published_desc" <%= filters.sort === 'published_desc' ? 'selected' : '' %>>Newest published</option>
+          <option value="published_asc" <%= filters.sort === 'published_asc' ? 'selected' : '' %>>Oldest published</option>
+          <option value="title" <%= filters.sort === 'title' ? 'selected' : '' %>>Title A–Z</option>
+        </select>
+      </label>
+      <label class="filters__field">
+        <span>View</span>
+        <select name="view">
+          <option value="concepts" <%= view === 'concepts' ? 'selected' : '' %>>By concept</option>
+          <option value="list" <%= view === 'list' ? 'selected' : '' %>>Flat list</option>
+        </select>
+      </label>
+      <button class="filters__go" type="submit">Apply</button>
+      <% if (filters.q || filters.category || filters.concept) { %><a class="filters__clear" href="/research">Clear</a><% } %>
+    </div>
+  </form>
+
+  <% if (!items.length) { %>
+    <div class="empty empty--inline">
+      <p class="empty__lead">Nothing here yet.</p>
+      <p>Every entry carries a <em>Relevant to my work</em> button. What you mark lands here, grouped by the concepts attached to it — over time this becomes a map of what you are actually reading rather than a list of bookmarks.</p>
+      <p><a class="readon" href="/daily">Go to today's edition →</a></p>
+    </div>
+  <% } else if (view === 'concepts') { %>
+    <% groups.forEach(function (g) { %>
+      <section class="cluster">
+        <div class="cluster__head">
+          <h3 class="cluster__title"><% if (g.key) { %><a href="/concept/<%= g.key %>"><%= g.label %></a><% } else { %><%= g.label %><% } %></h3>
+          <p class="cluster__count"><%= g.items.length %></p>
+        </div>
+        <div class="grid grid--3">
+          <% g.items.forEach(function (a) { %><%- include('partials/card-saved', { a: a, returnTo: '/research' }) %><% }) %>
+        </div>
+      </section>
+    <% }) %>
+  <% } else { %>
+    <div class="grid grid--3">
+      <% items.forEach(function (a) { %><%- include('partials/card-saved', { a: a, returnTo: '/research' }) %><% }) %>
+    </div>
+  <% } %>
+
+  <% if (conceptMap.length) { %>
+    <div class="rule rule--double"></div>
+    <h3 class="minor__title">Concept map</h3>
+    <p class="minor__note">The shape of the collection. Larger means more saved material.</p>
+    <p class="cloud">
+      <% conceptMap.forEach(function (c) { %>
+        <a href="/research?concept=<%= c.slug %>" class="cloud__item" style="font-size: <%= Math.min(1.9, 0.85 + c.n * 0.16).toFixed(2) %>rem"><%= c.name %> <span><%= c.n %></span></a>
+      <% }) %>
+    </p>
+  <% } %>
+</section>
+
+<%- include('partials/foot') %>

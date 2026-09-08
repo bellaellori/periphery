@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><%= title %> — PERIPHERY desk</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/periphery.css">
+</head>
+<body class="admin">
+<div class="adminbar">
+  <span class="adminbar__mark">PERIPHERY</span>
+  <a href="/admin" class="<%= path === '/' ? 'is-current' : '' %>">Desk</a>
+  <a href="/admin/articles" class="<%= path.indexOf('/articles') === 0 ? 'is-current' : '' %>">Material</a>
+  <a href="/admin/sources" class="<%= path.indexOf('/sources') === 0 ? 'is-current' : '' %>">Sources</a>
+  <a href="/admin/interests" class="<%= path.indexOf('/interests') === 0 ? 'is-current' : '' %>">Interests</a>
+  <a href="/admin/runs" class="<%= path.indexOf('/runs') === 0 ? 'is-current' : '' %>">Runs</a>
+  <span class="adminbar__end"></span>
+  <a href="/">View the site ↗</a>
+  <form method="post" action="/admin/logout" style="display:inline"><button class="linkbtn" type="submit">Sign out</button></form>
+</div>
+<div class="adminwrap">
+<% if (typeof flash !== 'undefined' && flash) { %><p class="notice"><%= flash %></p><% } %>

@@ -1,0 +1,170 @@
+<%- include('partials/head', { title: title, nav: nav, path: path, savedCount: savedCount, bodyClass: 'body--article' }) %>
+
+<article class="wrap wrap--article">
+
+  <header class="piece__head">
+    <p class="kicker kicker--lead"><a href="/category/<%= article.category %>"><%= article.category_label %></a><% if (inEdition) { %> <span class="kicker__sep">·</span> <a href="<%= inEdition.kind === 'daily' ? '/daily/' : '/long-read/' %><%= inEdition.edition_date %>"><%= inEdition.title %>, <%= fmt.date(inEdition.edition_date) %></a><% } %></p>
+    <h1 class="piece__title"><%= article.title %></h1>
+    <% if (article.dek) { %><p class="piece__dek"><%= article.dek %></p><% } %>
+
+    <div class="piece__byline">
+      <p class="piece__source">
+        <%= article.source_name %><% if (article.authors) { %><span class="meta__sep">·</span><%= fmt.authors(article.authors, 6) %><% } %>
+      </p>
+      <p class="piece__facts">
+        <span><%= article.type_label %></span>
+        <span class="meta__sep">·</span>
+        <span class="<%= article.peer_review_status === 'preprint' ? 'is-preprint' : '' %>"><%= article.review_label %></span>
+        <% if (article.publication_date) { %><span class="meta__sep">·</span><span><%= fmt.date(article.publication_date) %></span><% } %>
+        <% if (article.reading_time_min) { %><span class="meta__sep">·</span><span><%= fmt.minutes(article.reading_time_min) %> to read the original</span><% } %>
+      </p>
+    </div>
+
+    <div class="card__flags card__flags--large"><%- include('partials/flags', { a: article }) %></div>
+
+    <div class="piece__actions">
+      <% if (article.is_demo) { %>
+        <a class="readon readon--quiet" href="/demo-source">Why this entry has no source</a>
+      <% } else { %>
+        <a class="readon readon--strong" href="<%= article.source_url %>" rel="noopener noreferrer" target="_blank">Read the original ↗</a>
+      <% } %>
+      <%- include('partials/relevant', { a: article, returnTo: '/article/' + article.slug }) %>
+    </div>
+    <div class="rule rule--double"></div>
+  </header>
+
+  <div class="piece__grid">
+    <div class="piece__body">
+
+      <% if (article.is_demo) { %>
+        <p class="demo-banner"><strong>This is demo content.</strong> It was written to show the structure of an entry and is not a report of a real study. It carries no external source link. Real entries arrive from the pipeline and always link to their original.</p>
+      <% } %>
+
+      <% if (article.research_summary) { %>
+        <div class="prose prose--lead">
+          <% fmt.paras(article.research_summary).forEach(function (p, i) { %>
+            <p class="<%= i === 0 ? 'has-dropcap' : '' %>"><%= p %></p>
+          <% }) %>
+        </div>
+      <% } else if (article.short_summary) { %>
+        <div class="prose prose--lead"><p class="has-dropcap"><%= article.short_summary %></p></div>
+      <% } %>
+
+      <% var qs = [
+           ['What happened', article.what_happened],
+           ['What the researchers actually did', article.what_they_did],
+           ['What they found', article.what_they_found],
+           ['How strong the evidence is', article.evidence_strength],
+           ['Why it is interesting', article.why_interesting],
+           ['The broader question', article.broader_question],
+           ['Why it matters', article.why_it_matters]
+         ].filter(function (q) { return q[1]; }); %>
+
+      <% if (qs.length) { %>
+        <div class="rule rule--thin"></div>
+        <div class="qa">
+          <% qs.forEach(function (q) { %>
+            <section class="qa__item">
+              <h2 class="qa__q"><%= q[0] %></h2>
+              <div class="prose">
+                <% fmt.paras(q[1]).forEach(function (p) { %><p><%= p %></p><% }) %>
+              </div>
+            </section>
+          <% }) %>
+        </div>
+      <% } %>
+
+      <% if (article.selection_rationale || article.intellectual_territory || article.concepts_raised) { %>
+        <div class="rule rule--thin"></div>
+        <div class="qa">
+          <% if (article.selection_rationale) { %>
+          <section class="qa__item"><h2 class="qa__q">Why this was selected</h2>
+            <div class="prose"><p><%= article.selection_rationale %></p></div></section>
+          <% } %>
+          <% if (article.intellectual_territory) { %>
+          <section class="qa__item"><h2 class="qa__q">Intellectual territory</h2>
+            <div class="prose"><p><%= article.intellectual_territory %></p></div></section>
+          <% } %>
+          <% if (article.concepts_raised) { %>
+          <section class="qa__item"><h2 class="qa__q">Concepts and questions it raises</h2>
+            <div class="prose"><p><%= article.concepts_raised %></p></div></section>
+          <% } %>
+        </div>
+      <% } %>
+
+      <div class="rule rule--double"></div>
+      <div class="original">
+        <p class="original__label">The original</p>
+        <p class="original__title"><%= article.title %></p>
+        <p class="original__meta">
+          <%= article.source_name %><% if (article.authors) { %> · <%= fmt.authors(article.authors, 8) %><% } %><% if (article.publication_date) { %> · <%= fmt.date(article.publication_date) %><% } %>
+        </p>
+        <p class="original__link">
+          <% if (article.is_demo) { %>
+            <a href="/demo-source">No external source — demo content</a>
+          <% } else { %>
+            <a href="<%= article.source_url %>" rel="noopener noreferrer" target="_blank"><%= fmt.host(article.source_url) || article.source_url %> ↗</a>
+          <% } %>
+        </p>
+        <% if (article.canonical_id) { %><p class="original__doi"><%= article.canonical_id %></p><% } %>
+        <p class="original__note">PERIPHERY stores metadata, a summary and a link. Nothing above replaces reading the piece itself.</p>
+      </div>
+
+      <div class="piece__foot-actions">
+        <%- include('partials/relevant', { a: article, returnTo: '/article/' + article.slug, showLabel: true }) %>
+      </div>
+    </div>
+
+    <aside class="piece__aside">
+      <div class="aside__block">
+        <h3 class="aside__title">Relevance</h3>
+        <p class="aside__status status--<%= article.relevance_status %>"><%= article.relevance_label %></p>
+        <% if (article.relevance_rationale) { %><p class="aside__text"><%= article.relevance_rationale %></p><% } %>
+        <% if (article.periphery_bridge) { %>
+          <p class="aside__bridge"><span class="label">Bridge</span> <%= article.periphery_bridge %></p>
+        <% } %>
+      </div>
+
+      <% if (article.connection_to_research) { %>
+      <div class="aside__block">
+        <h3 class="aside__title">Connection to my research</h3>
+        <p class="aside__text"><%= article.connection_to_research %></p>
+      </div>
+      <% } %>
+
+      <% if (article.tags.length) { %>
+      <div class="aside__block">
+        <h3 class="aside__title">Concepts</h3>
+        <p class="tags">
+          <% article.tags.forEach(function (t) { %><a class="tag" href="/concept/<%= t.slug %>"><%= t.name %></a><% }) %>
+        </p>
+      </div>
+      <% } %>
+
+      <div class="aside__block">
+        <h3 class="aside__title">Provenance</h3>
+        <ul class="aside__list">
+          <li><span>Source</span><%= article.source_name %></li>
+          <li><span>Type</span><%= article.type_label %></li>
+          <li><span>Review</span><%= article.review_label %></li>
+          <% if (article.open_access) { %><li><span>Access</span>Open access</li><% } %>
+          <li><span>Summary</span><%= ({ model: 'Written by a language model from the abstract', extractive: 'Extracted from the abstract, no model', human: 'Edited by hand', none: 'Not yet summarised' })[article.summary_provenance] %></li>
+          <% if (article.published_at) { %><li><span>Filed</span><%= fmt.date(article.published_at) %></li><% } %>
+        </ul>
+      </div>
+
+      <% if (related.length) { %>
+      <div class="aside__block">
+        <h3 class="aside__title">Nearby</h3>
+        <ul class="aside__related">
+          <% related.forEach(function (r) { %>
+            <li><a href="/article/<%= r.slug %>"><%= r.title %></a><span><%= r.source_name %></span></li>
+          <% }) %>
+        </ul>
+      </div>
+      <% } %>
+    </aside>
+  </div>
+</article>
+
+<%- include('partials/foot') %>

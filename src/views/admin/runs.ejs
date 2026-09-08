@@ -1,0 +1,49 @@
+<%- include('partials/head', { title: title, path: path, flash: flash }) %>
+<h1>Runs</h1>
+<p style="font-size:.82rem;color:#45403a">Whether the automation is working. <code>GET /api/health</code> returns the same information as JSON and answers 503 if the last run failed — point an uptime checker at it.</p>
+
+<h2>Edition generation</h2>
+<div class="tablescroll"><table class="table">
+  <thead><tr><th>#</th><th>Kind</th><th>Status</th><th>Selected</th><th>Summariser</th><th>Trigger</th><th>Finished</th></tr></thead>
+  <tbody>
+    <% generation.forEach(function (r) { %>
+      <tr>
+        <td><%= r.id %></td>
+        <td><%= r.kind %><%= r.edition_date ? ' · ' + r.edition_date : '' %></td>
+        <td><span class="pill pill--<%= r.status %>"><%= r.status %></span></td>
+        <td><%= r.selected %> / <%= r.candidates %></td>
+        <td style="font-size:.72rem"><%= r.summariser || '—' %></td>
+        <td><%= r.trigger %></td>
+        <td style="color:#97907f"><%= r.finished_at ? fmt.ago(r.finished_at) : 'running' %></td>
+      </tr>
+      <% if (r.log) { %>
+      <tr><td colspan="7" style="padding-bottom:1rem"><pre style="font-size:.7rem;color:#45403a;white-space:pre-wrap;margin:0"><%= r.log %></pre></td></tr>
+      <% } %>
+    <% }) %>
+  </tbody>
+</table></div>
+<% if (!generation.length) { %><p style="font-size:.85rem;color:#6f685e">No generation runs yet.</p><% } %>
+
+<h2>Ingestion</h2>
+<div class="tablescroll"><table class="table">
+  <thead><tr><th>#</th><th>Status</th><th>Sources</th><th>Seen</th><th>New</th><th>Dup</th><th>Trigger</th><th>Finished</th></tr></thead>
+  <tbody>
+    <% ingestion.forEach(function (r) { %>
+      <tr>
+        <td><%= r.id %></td>
+        <td><span class="pill pill--<%= r.status %>"><%= r.status %></span></td>
+        <td><%= r.sources_ok %>/<%= r.sources_tried %></td>
+        <td><%= r.items_seen %></td>
+        <td><%= r.items_new %></td>
+        <td><%= r.items_duplicate %></td>
+        <td><%= r.trigger %></td>
+        <td style="color:#97907f"><%= r.finished_at ? fmt.ago(r.finished_at) : 'running' %></td>
+      </tr>
+      <% if (r.log) { %>
+      <tr><td colspan="8" style="padding-bottom:1rem"><pre style="font-size:.7rem;color:#45403a;white-space:pre-wrap;margin:0"><%= r.log %></pre></td></tr>
+      <% } %>
+    <% }) %>
+  </tbody>
+</table></div>
+<% if (!ingestion.length) { %><p style="font-size:.85rem;color:#6f685e">No ingestion runs yet.</p><% } %>
+<%- include('partials/foot') %>

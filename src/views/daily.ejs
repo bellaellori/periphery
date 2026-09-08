@@ -1,0 +1,53 @@
+<%- include('partials/head', { title: title, nav: nav, path: path, savedCount: savedCount }) %>
+
+<section class="wrap">
+  <header class="edition">
+    <p class="edition__kicker">The daily edition</p>
+    <h2 class="edition__title">The Daily Observatory</h2>
+    <p class="edition__date"><%= fmt.long(edition.edition_date) %></p>
+    <% if (edition.standfirst) { %><p class="edition__standfirst"><%= edition.standfirst %></p><% } %>
+    <div class="rule rule--double"></div>
+    <% if (edition.editors_note) { %>
+      <p class="edition__note"><span class="label">From the desk</span> <%= edition.editors_note %></p>
+    <% } %>
+  </header>
+
+  <% if (lead) { %>
+    <div class="edition__lead"><%- include('partials/card-lead', { a: lead, returnTo: '/daily/' + edition.edition_date }) %></div>
+    <div class="rule rule--thin"></div>
+  <% } %>
+
+  <% var main = items.filter(function (i) { return (!lead || i.id !== lead.id) && !i.is_periphery_pick; }); %>
+  <% var edge = items.filter(function (i) { return (!lead || i.id !== lead.id) && i.is_periphery_pick; }); %>
+
+  <% if (main.length) { %>
+    <div class="grid grid--3">
+      <% main.forEach(function (a) { %><%- include('partials/card', { a: a, returnTo: '/daily/' + edition.edition_date }) %><% }) %>
+    </div>
+  <% } %>
+
+  <% if (edge.length) { %>
+    <div class="rule rule--double"></div>
+    <div class="section__head">
+      <h3 class="section__title section__title--small">From the periphery</h3>
+    </div>
+    <p class="section__standfirst">These did not match the profile's own vocabulary. They were selected because a neighbouring field is circling the same problem.</p>
+    <div class="grid grid--3">
+      <% edge.forEach(function (a) { %>
+        <div class="edgewrap">
+          <%- include('partials/card', { a: a, returnTo: '/daily/' + edition.edition_date }) %>
+          <% if (a.relevance_rationale) { %><p class="edgewrap__why"><%= a.relevance_rationale %></p><% } %>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+
+  <div class="rule rule--thin"></div>
+  <nav class="pager">
+    <% if (neighbours.prev) { %><a href="/daily/<%= neighbours.prev.edition_date %>">← <%= fmt.date(neighbours.prev.edition_date) %></a><% } else { %><span></span><% } %>
+    <a href="/archive" class="pager__mid">All editions</a>
+    <% if (neighbours.next) { %><a href="/daily/<%= neighbours.next.edition_date %>"><%= fmt.date(neighbours.next.edition_date) %> →</a><% } else { %><span></span><% } %>
+  </nav>
+</section>
+
+<%- include('partials/foot') %>

@@ -1,0 +1,114 @@
+# PERIPHERY — assemble the edition and publish it.
+#
+# Runs every morning. Ingests from the configured sources, builds The Daily
+# Observatory, adds The Long Read on Wednesdays, Saturdays and Sundays, renders
+# the magazine to static pages and puts it on GitHub Pages.
+#
+# The database is committed back to the repository so tomorrow's run knows what
+# it already has. The research profile is NOT committed: it is injected from the
+# PERIPHERY_PROFILE secret at the start and wiped again before the commit.
+#
+# SECRETS
+#   PERIPHERY_PROFILE   (required) the research profile as JSON — `node scripts/ci.js export`
+#   ANTHROPIC_API_KEY   (optional) turns on model-written summaries
+#
+# Everything here is on GitHub's free tier: Actions minutes are unlimited for
+# public repositories, and a run takes two or three of them.
+
+name: Publish PERIPHERY
+
+on:
+  schedule:
+    - cron: '15 5 * * *'   # 05:15 UTC — 07:15 in Stockholm in summer, 06:15 in winter
+  workflow_dispatch:        # and a "Run workflow" button, for whenever
+    inputs:
+      rebuild_only:
+        description: 'Rebuild the pages without fetching anything new'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write     # to commit the database back
+  pages: write        # to publish
+  id-token: write
+
+concurrency:
+  group: periphery-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Idempotent: INSERT OR IGNORE, so this only ever adds sources that are missing.
+      - name: Ensure the source list exists
+        run: node scripts/seed.js sources
+
+      - name: Apply the research profile from the secret
+        env:
+          PERIPHERY_PROFILE: ${{ secrets.PERIPHERY_PROFILE }}
+        run: node scripts/ci.js prepare
+
+      # A quiet day is not a failure, so this step is allowed to come back empty.
+      - name: Ingest and build the edition
+        if: ${{ !inputs.rebuild_only }}
+        continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PERIPHERY_USER_AGENT: 'PERIPHERY/1.0 (personal research observatory; via GitHub Actions)'
+          PERIPHERY_TRIGGER: cron
+        run: node src/pipeline/run.js auto
+
+      # Lands on the run's summary page: which sources answered, which did not,
+      # what was selected. This is how the source list gets corrected.
+      - name: Report what the sources actually did
+        if: always()
+        run: node scripts/ci-report.js >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Work out the base path
+        id: base
+        run: |
+          NAME='${{ github.event.repository.name }}'
+          OWNER='${{ github.repository_owner }}'
+          # A repo called <owner>.github.io is served at the domain root; any
+          # other repo is served under /<repo-name>/.
+          if [ "$NAME" = "$OWNER.github.io" ]; then echo "base=" >> $GITHUB_OUTPUT
+          else echo "base=/$NAME" >> $GITHUB_OUTPUT; fi
+
+      - name: Render the magazine
+        run: node scripts/build-static.js docs --base "${{ steps.base.outputs.base }}"
+
+      - name: Remove the profile before committing
+        run: node scripts/ci.js scrub
+
+      - name: Commit the library
+        run: |
+          git config user.name  'PERIPHERY'
+          git config user.email 'periphery@users.noreply.github.com'
+          git add -f data/periphery.db
+          if git diff --staged --quiet; then
+            echo 'nothing new to record'
+          else
+            git commit -m "Edition of $(date -u +%Y-%m-%d)"
+            git push
+          fi
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - id: deploy
+        uses: actions/deploy-pages@v4

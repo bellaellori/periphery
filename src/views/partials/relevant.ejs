@@ -1,0 +1,15 @@
+<% if (typeof staticMode === 'undefined' || !staticMode) { %>
+<form class="relevant" method="post" action="/article/<%= a.slug %>/relevant" data-relevance data-id="<%= a.id %>">
+  <input type="hidden" name="return_to" value="<%= typeof returnTo !== 'undefined' ? returnTo : '' %>">
+  <button type="submit"
+          class="flagbtn <%= a.is_saved ? 'is-saved' : '' %> <%= typeof showLabel !== 'undefined' && showLabel ? 'flagbtn--labelled' : '' %>"
+          aria-pressed="<%= a.is_saved ? 'true' : 'false' %>"
+          aria-label="<%= a.is_saved ? 'Saved to My Research — click to remove' : 'Save to My Research' %>"
+          title="<%= a.is_saved ? 'Saved to My Research' : 'Save to My Research' %>">
+    <svg class="flagbtn__mark" viewBox="0 0 20 24" width="14" height="17" aria-hidden="true" focusable="false">
+      <path d="M2.5 1.5h15v21l-7.5-5.4-7.5 5.4z" />
+    </svg>
+    <span class="flagbtn__label"><%= a.is_saved ? 'Saved' : 'Save' %></span>
+  </button>
+</form>
+<% } %>
