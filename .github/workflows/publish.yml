@@ -20,6 +20,10 @@ name: Publish PERIPHERY
 on:
   schedule:
     - cron: '15 5 * * *'   # 05:15 UTC — 07:15 in Stockholm in summer, 06:15 in winter
+  push:
+    branches: [main]        # so the first push publishes straight away.
+                            # The job's own commit cannot retrigger this: pushes
+                            # made with GITHUB_TOKEN never start a workflow.
   workflow_dispatch:        # and a "Run workflow" button, for whenever
     inputs:
       rebuild_only:
