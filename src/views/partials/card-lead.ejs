@@ -12,6 +12,7 @@
   </p>
   <div class="lead__actions">
     <a class="readon" href="/article/<%= a.slug %>">Read the full entry</a>
+    <%- include('share', { a: a }) %>
     <%- include('relevant', { a: a, returnTo: typeof returnTo !== 'undefined' ? returnTo : '' }) %>
   </div>
 </article>

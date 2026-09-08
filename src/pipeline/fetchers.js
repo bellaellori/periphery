@@ -230,6 +230,14 @@ export const ADAPTERS = {
   crossref, pubmed, json: jsonfeed
 };
 
+/** WordPress feeds append "The post X appeared first on Y" to every summary. */
+function stripFeedBoilerplate(text = '') {
+  return String(text)
+    .replace(/\s*The post .*? appeared first on .*?\.?\s*$/i, '')
+    .replace(/\s*Continue reading\s*[\u2026.]*\s*$/i, '')
+    .trim();
+}
+
 /**
  * Retrieve one source. Returns { ok, items, error }.
  * Never throws — a broken source must not take down a run.
@@ -238,9 +246,17 @@ export async function fetchSource(source) {
   const adapter = ADAPTERS[source.kind];
   if (!adapter) return { ok: false, items: [], error: `No adapter for kind "${source.kind}"` };
   try {
+    // A publication's feed often carries more than the thing you subscribed for
+    // — Psyche mixes films in with its essays. This drops them at the door.
+    let drop = null;
+    if (source.exclude_pattern) {
+      try { drop = new RegExp(source.exclude_pattern, 'i'); }
+      catch { /* a bad pattern must not break the run */ }
+    }
     const items = (await adapter(source))
       .filter(i => i.title && i.url)
-      .map(i => ({ ...i, abstract: truncate(i.abstract, 4000) }));
+      .filter(i => !(drop && drop.test(i.url)))
+      .map(i => ({ ...i, abstract: truncate(stripFeedBoilerplate(i.abstract), 4000) }));
     return { ok: true, items, error: null };
   } catch (err) {
     return { ok: false, items: [], error: err.message };

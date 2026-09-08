@@ -18,6 +18,10 @@ db.pragma('foreign_keys = ON');
 export function migrate() {
   const sql = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
   db.exec(sql);
+  // Columns added after a database was first created. CREATE TABLE IF NOT EXISTS
+  // silently leaves an existing table alone, so new columns need adding by hand.
+  addColumn('sources', 'exclude_pattern', 'TEXT');
+
   // Ensure the singleton profile row exists.
   const existing = db.prepare('SELECT id FROM research_profile WHERE id = 1').get();
   if (!existing) {
@@ -33,6 +37,11 @@ export function migrate() {
 // statements at import time — without this, a fresh database would crash on boot
 // before server.js ever got the chance to migrate it.
 migrate();
+
+function addColumn(table, column, type) {
+  const cols = db.prepare(`PRAGMA table_info(${table})`).all().map(c => c.name);
+  if (!cols.includes(column)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${type}`);
+}
 
 export function profile() {
   return db.prepare('SELECT * FROM research_profile WHERE id = 1').get();

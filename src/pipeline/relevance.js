@@ -85,7 +85,7 @@ export function loadProfileModel() {
  * Score one candidate against the profile model.
  * Returns everything needed to explain the decision to the reader.
  */
-export function assess(item, model, { sourceName = '' } = {}) {
+export function assess(item, model, { sourceName = '', essay = false } = {}) {
   const hay = stemTokens(`${item.title} ${item.dek || ''} ${item.abstract || item.short_summary || ''} ${item.category || ''}`);
   const authorStems = stemTokens(item.authors || '');
 
@@ -154,6 +154,21 @@ export function assess(item, model, { sourceName = '' } = {}) {
     status = 'adjacent';
   } else {
     status = 'background';
+  }
+
+  // Essays chosen from a publication you picked are not scored against your
+  // vocabulary — a good essay deliberately avoids the jargon a matcher needs,
+  // and its editors already did the selecting to a standard no matcher reaches.
+  if (essay && status === 'background') {
+    status = 'adjacent';
+    return {
+      relevance_score: Math.max(score, 1),
+      relevance_status: status,
+      is_periphery_pick: 0,
+      periphery_bridge: null,
+      relevance_rationale: `From ${sourceName}, a publication you chose — essays are selected by their editors, not by keyword match.`,
+      excluded: false, matched, bridges
+    };
   }
 
   return {

@@ -489,6 +489,54 @@ main { padding-bottom: 4rem; }
   .flagbtn__label { opacity: 1; }
 }
 
+/* Share and copy — same quiet vocabulary as the flag: hairline strokes, no
+   chrome, the word appearing only when the pointer is on it. */
+.actions { display: inline-flex; align-items: center; gap: .15rem; }
+.card__tools { display: inline-flex; align-items: center; gap: .5rem; flex-shrink: 0; }
+
+.iconbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  background: transparent;
+  border: 0;
+  padding: .35rem .3rem;
+  min-width: 2.1rem;
+  min-height: 2.1rem;
+  color: var(--ink-4);
+  cursor: pointer;
+  line-height: 1;
+  transition: color .12s ease;
+}
+.iconbtn svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.iconbtn:hover, .iconbtn:focus-visible { color: var(--accent); }
+.iconbtn.is-done { color: var(--accent); }
+
+.iconbtn__label {
+  font-family: var(--sans);
+  font-size: .6rem;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  opacity: 0;
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: opacity .12s ease, max-width .12s ease;
+}
+.iconbtn:hover .iconbtn__label,
+.iconbtn:focus-visible .iconbtn__label,
+.iconbtn.is-done .iconbtn__label { opacity: 1; max-width: 6rem; }
+
+@media (hover: none) {
+  .iconbtn__label { opacity: 1; max-width: 6rem; }
+}
+
 /* The one place it is a proper labelled control: under a finished article. */
 .flagbtn--labelled {
   border: 1px solid var(--rule);

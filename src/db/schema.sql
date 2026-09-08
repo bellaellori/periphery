@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS sources (
   fetch_interval_h  INTEGER NOT NULL DEFAULT 24,
   last_fetched_at   TEXT,
   last_status       TEXT,
+  exclude_pattern   TEXT,   -- drop items whose URL matches this (e.g. '/videos/')
   notes             TEXT,
   created_at        TEXT NOT NULL DEFAULT (datetime('now'))
 );

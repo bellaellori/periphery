@@ -31,6 +31,80 @@
     }
   }
 
+  // ---------------------------------------------------------------- share
+  // Share hands the link to whatever the device already has — on a phone that
+  // includes Notion, which is one tap from here into a database. Copy puts the
+  // entry and its link on the clipboard as plain prose, ready to paste.
+  // Neither needs a server, an account or a token.
+
+  function compose(d) {
+    return [d.title, d.line, '', d.body, '', d.url]
+      .filter(function (s) { return s !== undefined && s !== null; })
+      .join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  }
+
+  function flash(btn, word) {
+    var label = btn.querySelector('.iconbtn__label');
+    if (!label) return;
+    if (btn.dataset.was === undefined) btn.dataset.was = label.textContent;
+    label.textContent = word;
+    btn.classList.add('is-done');
+    clearTimeout(btn._t);
+    btn._t = setTimeout(function () {
+      label.textContent = btn.dataset.was;
+      btn.classList.remove('is-done');
+    }, 1800);
+  }
+
+  function toClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text).then(function () { return true; },
+                                                      function () { return legacy(text); });
+    }
+    return Promise.resolve(legacy(text));
+  }
+
+  // Clipboard access is blocked in some embedded contexts; this still works there.
+  function legacy(text) {
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;top:0;left:-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = document.execCommand('copy');
+      ta.remove();
+      return ok;
+    } catch (err) { return false; }
+  }
+
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('.iconbtn');
+    if (!btn) return;
+    var box = btn.closest('[data-share]');
+    if (!box) return;
+    e.preventDefault();
+
+    var d = box.dataset;
+    var text = compose(d);
+
+    if (btn.dataset.act === 'share' && navigator.share) {
+      var payload = { title: d.title, text: d.body || d.title };
+      if (d.url) payload.url = d.url;
+      navigator.share(payload).catch(function (err) {
+        // A cancelled share sheet is not a failure; anything else falls back.
+        if (err && err.name === 'AbortError') return;
+        toClipboard(text).then(function (ok) { flash(btn, ok ? 'Copied' : 'Blocked'); });
+      });
+      return;
+    }
+
+    toClipboard(text).then(function (ok) {
+      flash(btn, ok ? 'Copied' : 'Blocked');
+    });
+  });
+
   document.addEventListener('submit', function (e) {
     var form = e.target.closest('form[data-relevance]');
     if (!form) return;

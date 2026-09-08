@@ -28,6 +28,7 @@
       <% } else { %>
         <a class="readon readon--strong" href="<%= article.source_url %>" rel="noopener noreferrer" target="_blank">Read the original ↗</a>
       <% } %>
+      <%- include('partials/share', { a: article }) %>
       <%- include('partials/relevant', { a: article, returnTo: '/article/' + article.slug }) %>
     </div>
     <div class="rule rule--double"></div>

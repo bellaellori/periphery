@@ -90,7 +90,8 @@ export async function runIngestion({ trigger = 'manual', sourceIds = null, log =
       const category = categorise(item, source);
       const { publication_type, peer_review_status } = typify(item, source);
       const { word_estimate, reading_time_min } = estimateReading(item, publication_type);
-      const rel = assess({ ...item, category }, model, { sourceName: source.name });
+      const rel = assess({ ...item, category }, model,
+        { sourceName: source.name, essay: source.publisher_type === 'essay' });
 
       const row = {
         slug: uniqueSlug(item.title),
@@ -114,7 +115,7 @@ export async function runIngestion({ trigger = 'manual', sourceIds = null, log =
         relevance_rationale: rel.relevance_rationale,
         is_periphery_pick: rel.is_periphery_pick,
         periphery_bridge: rel.periphery_bridge,
-        is_long_form: isLongForm({ publication_type, word_estimate }) ? 1 : 0,
+        is_long_form: isLongForm({ publication_type, word_estimate }, source) ? 1 : 0,
         content_hash: h
       };
 

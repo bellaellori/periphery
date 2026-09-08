@@ -66,11 +66,39 @@ const SOURCES = [
 
   // Institutions and serious magazines
   { name: 'Quanta Magazine', kind: 'rss', publisher_type: 'magazine', quality_tier: 2, url: 'https://www.quantamagazine.org/feed/', homepage: 'https://www.quantamagazine.org' },
-  { name: 'Aeon', kind: 'rss', publisher_type: 'magazine', quality_tier: 2, default_category: 'philosophy', url: 'https://aeon.co/feed.rss', homepage: 'https://aeon.co' },
+  { name: 'Aeon', kind: 'rss', publisher_type: 'essay', quality_tier: 2, url: 'https://aeon.co/feed.rss', homepage: 'https://aeon.co',
+    notes: 'Essay publication — long-form by definition, and not keyword-scored: its editors are the filter.' },
+  { name: 'Psyche', kind: 'rss', publisher_type: 'essay', quality_tier: 2, url: 'https://psyche.co/feed.rss', homepage: 'https://psyche.co',
+    exclude_pattern: '/videos/|/films/',
+    notes: 'Aeon\'s sister publication — mind, mental life, everyday philosophy. Feed URL follows Aeon\'s pattern; unverified until a run tests it.' },
   { name: 'Nautilus', kind: 'rss', publisher_type: 'magazine', quality_tier: 2, url: 'https://nautil.us/feed/', homepage: 'https://nautil.us' },
   { name: 'MIT News · Research', kind: 'rss', publisher_type: 'institution', quality_tier: 2, url: 'https://news.mit.edu/rss/research', homepage: 'https://news.mit.edu' },
   { name: 'Max Planck Society · Research news', kind: 'rss', publisher_type: 'institution', quality_tier: 2, url: 'https://www.mpg.de/rss/all-news', homepage: 'https://www.mpg.de' }
 ];
+
+// Corrections applied on every run, because INSERT OR IGNORE cannot revise a
+// source already in the database.
+const SOURCE_FIXES = [
+  { match: 'Aeon',     set: { publisher_type: 'essay', default_category: null } },
+  { match: 'Nautilus', set: { publisher_type: 'magazine' } },
+  { match: 'Psyche',   set: { exclude_pattern: '/videos/|/films/' } },
+
+  // Switched off rather than deleted — the row keeps the error that condemned it,
+  // and re-enabling is one click if a URL is ever corrected.
+  { match: 'Royal Society Interface',          set: { enabled: 0, notes: 'Disabled: feed URL returns 404. Needs a working URL, or reach the journal through Crossref instead.' } },
+  { match: 'Max Planck Society · Research news', set: { enabled: 0, notes: 'Disabled: feed URL returns 404.' } },
+  { match: 'PsyArXiv',                         set: { enabled: 0, notes: 'Disabled: the OSF wildcard query returns the whole preprint server — 240 items a run for 11 relevant ones. Needs a subject-scoped query before it earns its place back.' } }
+];
+
+function applySourceFixes() {
+  let n = 0;
+  for (const fix of SOURCE_FIXES) {
+    const cols = Object.keys(fix.set);
+    const sql = `UPDATE sources SET ${cols.map(c => `${c} = ?`).join(', ')} WHERE name = ?`;
+    n += db.prepare(sql).run(...cols.map(c => fix.set[c]), fix.match).changes;
+  }
+  if (n) console.log(`sources: ${n} existing entr${n === 1 ? 'y' : 'ies'} corrected`);
+}
 
 function seedSources() {
   const stmt = db.prepare(`INSERT OR IGNORE INTO sources
@@ -86,6 +114,7 @@ function seedSources() {
     n += r.changes;
   }
   console.log(`sources: ${n} added, ${SOURCES.length - n} already present`);
+  applySourceFixes();
 }
 
 // ---------------------------------------------------------------------------

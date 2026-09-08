@@ -23,6 +23,7 @@
         <a class="readon readon--strong" href="<%= a.source_url %>" rel="noopener noreferrer" target="_blank">Read the original at <%= a.source_name %> ↗</a>
       <% } %>
       <a class="readon readon--quiet" href="/article/<%= a.slug %>">Our note on it</a>
+      <%- include('share', { a: a }) %>
       <%- include('relevant', { a: a, returnTo: typeof returnTo !== 'undefined' ? returnTo : '' }) %>
     </div>
   </div>

@@ -1,0 +1,27 @@
+<%
+  // Everything the buttons need, composed once so the copy is tidy prose rather
+  // than scraped markup.
+  var _line = [a.source_name, a.publication_date ? fmt.date(a.publication_date) : null]
+                .filter(Boolean).join(' · ');
+  var _body = (a.short_summary || a.dek || '').trim();
+%>
+<div class="actions" data-share
+     data-title="<%= a.title %>"
+     data-line="<%= _line %>"
+     data-body="<%= _body %>"
+     data-url="<%= a.is_demo ? '' : a.source_url %>">
+  <button type="button" class="iconbtn" data-act="share" aria-label="Share this" title="Share">
+    <svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true" focusable="false">
+      <path d="M10 13V2.5M10 2.5 6.5 6M10 2.5 13.5 6"/>
+      <path d="M4 9.5v7h12v-7"/>
+    </svg>
+    <span class="iconbtn__label">Share</span>
+  </button>
+  <button type="button" class="iconbtn" data-act="copy" aria-label="Copy this entry and its link" title="Copy">
+    <svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true" focusable="false">
+      <rect x="6.5" y="6.5" width="10" height="11" rx="1"/>
+      <path d="M13.5 4H4.5a1 1 0 0 0-1 1v9"/>
+    </svg>
+    <span class="iconbtn__label">Copy</span>
+  </button>
+</div>

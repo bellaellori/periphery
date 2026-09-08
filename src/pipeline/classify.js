@@ -89,7 +89,10 @@ export function estimateReading(item, publication_type) {
  * Long-form test. A long read is something substantial enough to sit down with:
  * a full paper, a review, an essay of real length.
  */
-export function isLongForm({ publication_type, word_estimate }) {
+export function isLongForm({ publication_type, word_estimate }, source) {
+  // An essay publication is long-form by definition. Its feed carries a teaser,
+  // not the piece, so word count measures the wrong thing entirely.
+  if (source?.publisher_type === 'essay') return true;
   if (['paper', 'preprint', 'review', 'book_chapter'].includes(publication_type)) return true;
   return (word_estimate || 0) >= 2500;
 }
