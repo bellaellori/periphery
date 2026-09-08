@@ -1,0 +1,344 @@
+{
+  "display_name": "Reader",
+  "statement": "I work on biological regulation: how control loops in living systems terminate rather than run forever, what makes a regulatory process close, and how safety is signalled and validated inside a distributed body. Around that sit questions about perception and inference, about how control is distributed across a system with no central controller, and about what makes a complex adaptive system hold together. I am interested in theory that crosses disciplines — the same problem stated in another field's vocabulary is usually the useful find.",
+  "periphery_appetite": 0.35,
+  "daily_size": 7,
+  "longread_size": 4,
+  "interests": [
+    {
+      "kind": "topic",
+      "value": "biological regulation",
+      "weight": 1.2,
+      "notes": null,
+      "expires_on": null
+    },
+    {
+      "kind": "topic",
+      "value": "closure",
+      "weight": 1.1,
+      "notes": null,
+      "expires_on": null
+    },
+    {
+      "kind": "topic",
+      "value": "safety",
+      "weight": 1,
+      "notes": null,
+      "expires_on": null
+    },
+    {
+      "kind": "topic",
+      "value": "distributed control",
+      "weight": 1.1,
+      "notes": null,
+      "expires_on": null
+    },
+    {
+      "kind": "topic",
+      "value": "perception",
+      "weight": 1,
+      "notes": null,
+      "expires_on": null
+    },
+    {
+      "kind": "topic",
+      "value": "cognition",
+      "weight": 1,
+      "notes": null,
+      "expires_on": null
+    },
+    {
+      "kind": "topic",
+      "value": "complex adaptive systems",
+      "weight": 1.1,
+      "notes": null,
+      "expires_on": null
+    },
+    {
+      "kind": "concept",
+      "value": "homeostasis",
+      "weight": 1,
+      "notes": null,
+      "expires_on": null
+    },
+    {
+      "kind": "concept",
+      "value": "allostasis",
+      "weight": 1,
+      "notes": null,
+      "expires_on": null
+    },
+    {
+      "kind": "concept",
+      "value": "feedback",
+      "weight": 0.9,
+      "notes": null,
+      "expires_on": null
+    },
+    {
+      "kind": "concept",
+      "value": "predictive processing",
+      "weight": 1.1,
+      "notes": null,
+      "expires_on": null
+    },
+    {
+      "kind": "concept",
+      "value": "interoception",
+      "weight": 1,
+      "notes": null,
+      "expires_on": null
+    },
+    {
+      "kind": "concept",
+      "value": "termination",
+      "weight": 0.9,
+      "notes": null,
+      "expires_on": null
+    },
+    {
+      "kind": "concept",
+      "value": "self-organisation",
+      "weight": 1,
+      "notes": null,
+      "expires_on": null
+    },
+    {
+      "kind": "concept",
+      "value": "emergence",
+      "weight": 0.8,
+      "notes": null,
+      "expires_on": null
+    },
+    {
+      "kind": "concept",
+      "value": "regulation",
+      "weight": 1,
+      "notes": null,
+      "expires_on": null
+    },
+    {
+      "kind": "field",
+      "value": "neuroscience",
+      "weight": 0.8,
+      "notes": null,
+      "expires_on": null
+    },
+    {
+      "kind": "field",
+      "value": "systems biology",
+      "weight": 0.8,
+      "notes": null,
+      "expires_on": null
+    },
+    {
+      "kind": "field",
+      "value": "cybernetics",
+      "weight": 0.9,
+      "notes": null,
+      "expires_on": null
+    },
+    {
+      "kind": "field",
+      "value": "control theory",
+      "weight": 0.9,
+      "notes": null,
+      "expires_on": null
+    },
+    {
+      "kind": "field",
+      "value": "complexity science",
+      "weight": 0.8,
+      "notes": null,
+      "expires_on": null
+    }
+  ],
+  "adjacency": [
+    {
+      "concept": "biological regulation",
+      "adjacent": "governance",
+      "field": "organisational theory",
+      "strength": 0.6
+    },
+    {
+      "concept": "biological regulation",
+      "adjacent": "ecosystem regulation",
+      "field": "ecology",
+      "strength": 0.7
+    },
+    {
+      "concept": "biological regulation",
+      "adjacent": "feedback control",
+      "field": "control theory",
+      "strength": 0.8
+    },
+    {
+      "concept": "closure",
+      "adjacent": "termination condition",
+      "field": "computer science",
+      "strength": 0.8
+    },
+    {
+      "concept": "closure",
+      "adjacent": "fixed point",
+      "field": "mathematics",
+      "strength": 0.7
+    },
+    {
+      "concept": "closure",
+      "adjacent": "operational closure",
+      "field": "philosophy",
+      "strength": 0.8
+    },
+    {
+      "concept": "closure",
+      "adjacent": "halting",
+      "field": "computer science",
+      "strength": 0.7
+    },
+    {
+      "concept": "safety",
+      "adjacent": "fault tolerance",
+      "field": "distributed systems",
+      "strength": 0.8
+    },
+    {
+      "concept": "safety",
+      "adjacent": "graceful degradation",
+      "field": "engineering",
+      "strength": 0.7
+    },
+    {
+      "concept": "safety",
+      "adjacent": "resilience",
+      "field": "ecology",
+      "strength": 0.7
+    },
+    {
+      "concept": "safety",
+      "adjacent": "risk homeostasis",
+      "field": "behavioural science",
+      "strength": 0.6
+    },
+    {
+      "concept": "distributed control",
+      "adjacent": "consensus protocol",
+      "field": "computer science",
+      "strength": 0.8
+    },
+    {
+      "concept": "distributed control",
+      "adjacent": "stigmergy",
+      "field": "ethology",
+      "strength": 0.8
+    },
+    {
+      "concept": "distributed control",
+      "adjacent": "swarm",
+      "field": "network science",
+      "strength": 0.7
+    },
+    {
+      "concept": "distributed control",
+      "adjacent": "polycentric",
+      "field": "political economy",
+      "strength": 0.7
+    },
+    {
+      "concept": "perception",
+      "adjacent": "signal detection",
+      "field": "information theory",
+      "strength": 0.7
+    },
+    {
+      "concept": "perception",
+      "adjacent": "sensing",
+      "field": "engineering",
+      "strength": 0.5
+    },
+    {
+      "concept": "perception",
+      "adjacent": "active inference",
+      "field": "cognitive science",
+      "strength": 0.9
+    },
+    {
+      "concept": "cognition",
+      "adjacent": "distributed cognition",
+      "field": "anthropology",
+      "strength": 0.8
+    },
+    {
+      "concept": "cognition",
+      "adjacent": "collective intelligence",
+      "field": "sociology",
+      "strength": 0.7
+    },
+    {
+      "concept": "complex adaptive systems",
+      "adjacent": "criticality",
+      "field": "physics",
+      "strength": 0.7
+    },
+    {
+      "concept": "complex adaptive systems",
+      "adjacent": "network topology",
+      "field": "network science",
+      "strength": 0.7
+    },
+    {
+      "concept": "complex adaptive systems",
+      "adjacent": "evolvability",
+      "field": "evolutionary biology",
+      "strength": 0.7
+    },
+    {
+      "concept": "complex adaptive systems",
+      "adjacent": "institutional design",
+      "field": "organisational theory",
+      "strength": 0.6
+    },
+    {
+      "concept": "homeostasis",
+      "adjacent": "set point",
+      "field": "control theory",
+      "strength": 0.7
+    },
+    {
+      "concept": "homeostasis",
+      "adjacent": "carrying capacity",
+      "field": "ecology",
+      "strength": 0.6
+    },
+    {
+      "concept": "predictive processing",
+      "adjacent": "error correction",
+      "field": "information theory",
+      "strength": 0.7
+    },
+    {
+      "concept": "regulation",
+      "adjacent": "requisite variety",
+      "field": "cybernetics",
+      "strength": 0.9
+    },
+    {
+      "concept": "regulation",
+      "adjacent": "compliance",
+      "field": "sociology",
+      "strength": 0.4
+    },
+    {
+      "concept": "emergence",
+      "adjacent": "phase transition",
+      "field": "physics",
+      "strength": 0.7
+    },
+    {
+      "concept": "self-organisation",
+      "adjacent": "autocatalysis",
+      "field": "chemistry",
+      "strength": 0.7
+    }
+  ]
+}

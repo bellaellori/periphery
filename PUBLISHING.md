@@ -22,20 +22,23 @@ app you run yourself, if and when you want them.
 | `scripts/ci.js` | Injects the research profile from a secret before the run, wipes it before the commit |
 | `scripts/ci-report.js` | Writes a summary on each run saying which sources answered and which did not |
 
-## The four things that need a GitHub account
+## What setting it up actually takes
 
-Nothing here needs you to type a command. Told to go ahead, these are done for you.
+1. **An empty public repository.** Public, so Pages is free. It holds the code,
+   the built magazine and the library database.
+2. **Push this project into it.**
+3. That's it. The first run turns Pages on by itself, reads the profile from
+   `profile.json`, and publishes.
 
-1. **Create the repository.** Public, so Pages is free. It holds the code, the
-   built magazine and the library database.
-2. **Set two secrets.**
-   - `PERIPHERY_PROFILE` — your research profile as JSON. Generated with
-     `npm run profile:export`; it is *not* committed to the repository.
-   - `ANTHROPIC_API_KEY` — optional. With it, entries are written by a model
-     under a strict brief. Without it they are extracted from the abstract, and
-     every entry says which it was.
-3. **Turn on Pages**, source: GitHub Actions.
-4. **Run the workflow once by hand** and read the summary it produces.
+Two things are optional rather than required:
+
+- **`PERIPHERY_PROFILE` secret.** By default the profile lives in `profile.json`
+  in the repository, which means it is public. Setting this secret overrides the
+  file, keeping the statement and the term list private. See the privacy note
+  below for the limit of that.
+- **`ANTHROPIC_API_KEY` secret.** With it, entries are written by a model under a
+  strict brief. Without it they are extracted from the abstract, and every entry
+  says which it was.
 
 ## Why that first run matters more than it sounds
 

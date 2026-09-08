@@ -18,6 +18,9 @@
  * are public, so a reader can infer parts of the profile from the magazine
  * itself. What stays private is the written statement and the full list.
  */
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { db, migrate } from '../src/db/index.js';
 
 migrate();
@@ -31,14 +34,27 @@ async function prepare() {
 }
 
 async function applyProfile() {
-  const raw = process.env[PROFILE_ENV];
+  // Two places the profile can come from, in order of preference:
+  //   1. the PERIPHERY_PROFILE secret — private, not in the repository
+  //   2. profile.json in the repository — public, but nothing to set up
+  let raw = process.env[PROFILE_ENV];
+  let origin = 'secret';
+
+  if (!raw) {
+    const file = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'profile.json');
+    if (fs.existsSync(file)) {
+      raw = fs.readFileSync(file, 'utf8');
+      origin = 'profile.json';
+    }
+  }
+
   if (!raw) {
     const existing = db.prepare('SELECT statement FROM research_profile WHERE id = 1').get();
     if (existing?.statement) {
-      console.log('no PERIPHERY_PROFILE secret set — using the profile already in the database');
+      console.log('no profile supplied — using the one already in the database');
     } else {
-      console.log(`no PERIPHERY_PROFILE secret and no stored profile: nothing will score above`
-        + ` background and no edition can be built. Set the secret.`);
+      console.log('no profile anywhere: nothing will score above background and no edition'
+        + ' can be built. Set the PERIPHERY_PROFILE secret or commit a profile.json.');
     }
     return;
   }
@@ -88,7 +104,7 @@ async function applyProfile() {
     interests: db.prepare('SELECT count(*) n FROM research_interests').get().n,
     bridges: db.prepare('SELECT count(*) n FROM concept_adjacency').get().n
   };
-  console.log(`profile applied from secret: ${counts.interests} terms, ${counts.bridges} bridges`);
+  console.log(`profile applied from ${origin}: ${counts.interests} terms, ${counts.bridges} bridges`);
 }
 
 /** Remove the profile before the database is committed to a public repository. */
