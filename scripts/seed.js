@@ -67,6 +67,7 @@ const SOURCES = [
   // Institutions and serious magazines
   { name: 'Quanta Magazine', kind: 'rss', publisher_type: 'magazine', quality_tier: 2, url: 'https://www.quantamagazine.org/feed/', homepage: 'https://www.quantamagazine.org' },
   { name: 'Aeon', kind: 'rss', publisher_type: 'essay', quality_tier: 2, url: 'https://aeon.co/feed.rss', homepage: 'https://aeon.co',
+    exclude_pattern: '/videos/|/films/',
     notes: 'Essay publication — long-form by definition, and not keyword-scored: its editors are the filter.' },
   { name: 'Psyche', kind: 'rss', publisher_type: 'essay', quality_tier: 2, url: 'https://psyche.co/feed.rss', homepage: 'https://psyche.co',
     exclude_pattern: '/videos/|/films/',
@@ -79,7 +80,7 @@ const SOURCES = [
 // Corrections applied on every run, because INSERT OR IGNORE cannot revise a
 // source already in the database.
 const SOURCE_FIXES = [
-  { match: 'Aeon',     set: { publisher_type: 'essay', default_category: null } },
+  { match: 'Aeon',     set: { publisher_type: 'essay', default_category: null, exclude_pattern: '/videos/|/films/' } },
   { match: 'Nautilus', set: { publisher_type: 'magazine' } },
   { match: 'Psyche',   set: { exclude_pattern: '/videos/|/films/' } },
 

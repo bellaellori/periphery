@@ -31,40 +31,59 @@ export function longReadLabel(date = new Date()) {
   return 'Off-schedule selection';
 }
 
-const CANDIDATE_SQL = `
+const DAILY_SQL = `
   SELECT a.*, e.excerpt
   FROM articles a
   LEFT JOIN article_excerpts e ON e.article_id = a.id
+  LEFT JOIN sources s ON s.id = a.source_id
   WHERE a.status IN ('ingested', 'approved')
     AND a.relevance_status != 'background'
-    AND a.is_long_form = @longForm
+    AND COALESCE(s.publisher_type, '') != 'essay'
     AND a.ingested_at >= datetime('now', @window)
     AND NOT EXISTS (SELECT 1 FROM edition_items ei WHERE ei.article_id = a.id)
   ORDER BY a.relevance_score DESC, a.publication_date DESC
   LIMIT 300`;
 
+// Essays are not scored — their vocabulary deliberately avoids the matcher's
+// terms, and their editors already did the selecting. No relevance filter,
+// newest first.
+const LONGREAD_SQL = `
+  SELECT a.*, e.excerpt
+  FROM articles a
+  LEFT JOIN article_excerpts e ON e.article_id = a.id
+  JOIN sources s ON s.id = a.source_id
+  WHERE a.status IN ('ingested', 'approved')
+    AND s.publisher_type = 'essay'
+    AND a.ingested_at >= datetime('now', @window)
+    AND NOT EXISTS (SELECT 1 FROM edition_items ei WHERE ei.article_id = a.id)
+  ORDER BY a.publication_date DESC, a.id DESC
+  LIMIT 300`;
+
 function shortlist({ longForm, windowDays }) {
-  return db.prepare(CANDIDATE_SQL).all({
-    longForm: longForm ? 1 : 0,
-    window: `-${windowDays} days`
-  });
+  return db.prepare(longForm ? LONGREAD_SQL : DAILY_SQL).all({ window: `-${windowDays} days` });
 }
 
 /**
  * Pick the running order.
  * @param {object[]} candidates
- * @param {object}   opts { size, peripheryShare, maxPerCategory, requireDirect }
+ * @param {object}   opts { size, peripheryShare, maxPerCategory, maxPerSource, requireDirect }
  */
-export function select(candidates, { size, peripheryShare = 0.35, maxPerCategory = 2, requireDirect = false }) {
+export function select(candidates, { size, peripheryShare = 0.35, maxPerCategory = 2, maxPerSource = 2, requireDirect = false }) {
   const peripheryTarget = Math.max(1, Math.round(size * peripheryShare));
   const chosen = [];
   const perCategory = new Map();
+  const perSource = new Map();
 
   const take = (a, slot) => {
     chosen.push({ ...a, slot });
     perCategory.set(a.category, (perCategory.get(a.category) || 0) + 1);
+    if (a.source_name) perSource.set(a.source_name, (perSource.get(a.source_name) || 0) + 1);
   };
-  const room = a => (perCategory.get(a.category) || 0) < maxPerCategory;
+  const roomCategory = a => (perCategory.get(a.category) || 0) < maxPerCategory;
+  // Items with no source_name (e.g. bare test fixtures) are exempt, rather
+  // than all colliding into a single undefined "source".
+  const roomSource = a => !a.source_name || (perSource.get(a.source_name) || 0) < maxPerSource;
+  const room = a => roomCategory(a) && roomSource(a);
   const picked = () => new Set(chosen.map(c => c.id));
 
   // 1. Core / directly relevant material first.
@@ -83,12 +102,14 @@ export function select(candidates, { size, peripheryShare = 0.35, maxPerCategory
     if (room(a)) take(a, 'periphery');
   }
 
-  // 3. Backfill if either pool ran dry, relaxing the category cap last.
+  // 3. Backfill if either pool ran dry, relaxing the category cap last — but
+  // the source cap holds even here, so one prolific source cannot fill the rest.
   for (const relax of [false, true]) {
     for (const a of candidates) {
       if (chosen.length >= size) break;
       if (picked().has(a.id)) continue;
-      if (!relax && !room(a)) continue;
+      if (!roomSource(a)) continue;
+      if (!relax && !roomCategory(a)) continue;
       take(a, a.is_periphery_pick ? 'periphery' : 'main');
     }
   }
@@ -98,7 +119,7 @@ export function select(candidates, { size, peripheryShare = 0.35, maxPerCategory
   return chosen.slice(0, size);
 }
 
-function standfirstFor(kind, items, flavour) {
+function standfirstFor(kind, items) {
   const cats = [...new Set(items.map(i => CATEGORY_LABELS[i.category] || i.category))];
   const nPeriphery = items.filter(i => i.is_periphery_pick).length;
   const spread = cats.length > 3
@@ -110,21 +131,17 @@ function standfirstFor(kind, items, flavour) {
       + (nPeriphery ? `, ${nPeriphery} of them found at the edges of the profile rather than inside it` : '')
       + '.';
   }
-  return flavour === 'wednesday'
-    ? `Longer reading chosen against the current research profile — ${spread}.`
-    : `Longer reading chosen to range wider than the profile — ${spread}.`;
+  return `${items.length} essay${items.length === 1 ? '' : 's'} from Aeon and Psyche, newest first.`;
 }
 
-function editorsNoteFor(kind, items, flavour) {
+function editorsNoteFor(kind, items) {
   if (kind === 'daily') {
     const preprints = items.filter(i => i.peer_review_status === 'preprint').length;
     return `Today's selection was assembled automatically from the configured sources and ranked against the research profile. `
       + (preprints ? `${preprints} of ${items.length} ${preprints === 1 ? 'item is a preprint' : 'items are preprints'} and ${preprints === 1 ? 'has' : 'have'} not been peer reviewed; ` : '')
       + `each entry links to its original source, which remains the thing to read.`;
   }
-  return flavour === 'wednesday'
-    ? `The Wednesday selection stays close to the research profile: pieces that bear directly on the questions currently in play. The summaries are an approach to the reading, not a substitute for it.`
-    : `The weekend selection is deliberately looser. Some of these sit outside the stated profile entirely; they were chosen because the problem underneath them rhymes with one that is.`;
+  return `Essays aren't scored against the research profile — their vocabulary deliberately avoids the vocabulary a matcher looks for, and their editors already did the selecting. This is simply the newest from Aeon and Psyche, unranked.`;
 }
 
 const upsertEdition = db.prepare(`
@@ -182,7 +199,6 @@ export async function generateEdition(kind, {
   log = () => {}
 } = {}) {
   const p = profile();
-  const flavour = kind === 'long_read' ? longReadFlavour(date) : null;
   const editionDate = date.toISOString().slice(0, 10);
 
   const run = db.prepare(
@@ -209,12 +225,16 @@ export async function generateEdition(kind, {
     }
 
     const size = kind === 'daily' ? (p?.daily_size || 7) : (p?.longread_size || 4);
-    const items = select(candidates, {
-      size,
-      peripheryShare: kind === 'long_read' && flavour === 'wednesday' ? 0.2 : (p?.periphery_appetite ?? 0.35),
-      maxPerCategory: kind === 'daily' ? 2 : 2,
-      requireDirect: kind === 'long_read' && flavour === 'wednesday'
-    });
+    // Essays are never scored against the profile — their editors already did the
+    // selecting — so the Long Read just takes the newest ones rather than ranking them.
+    const items = kind === 'long_read'
+      ? candidates.slice(0, size).map((a, i) => ({ ...a, slot: i === 0 ? 'lead' : 'main' }))
+      : select(candidates, {
+          size,
+          peripheryShare: p?.periphery_appetite ?? 0.35,
+          maxPerCategory: 2,
+          maxPerSource: 2
+        });
     say(`selected ${items.length} (${items.filter(i => i.is_periphery_pick).length} periphery)`);
 
     // Editorial apparatus, one item at a time so a single failure is contained.
@@ -254,8 +274,8 @@ export async function generateEdition(kind, {
       kind,
       edition_date: editionDate,
       title,
-      standfirst: standfirstFor(kind, items, flavour),
-      editors_note: editorsNoteFor(kind, items, flavour),
+      standfirst: standfirstFor(kind, items),
+      editors_note: editorsNoteFor(kind, items),
       status: publish ? 'published' : 'draft',
       item_count: items.length,
       generated_by: trigger === 'manual' ? 'manual' : 'pipeline',

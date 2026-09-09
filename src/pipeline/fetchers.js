@@ -235,6 +235,9 @@ function stripFeedBoilerplate(text = '') {
   return String(text)
     .replace(/\s*The post .*? appeared first on .*?\.?\s*$/i, '')
     .replace(/\s*Continue reading\s*[\u2026.]*\s*$/i, '')
+    // Aeon and Psyche end every teaser with a byline trailer:
+    // "- by Author Name Read on Psyche" / "Watch on Aeon" / "Listen on \u2026"
+    .replace(/\s*-\s*by\s+.+?\s+(?:Read|Watch|Listen)\s+on\s+\S+\.?\s*$/i, '')
     .trim();
 }
 

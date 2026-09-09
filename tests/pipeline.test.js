@@ -134,6 +134,20 @@ test('selection reserves room for periphery picks and spreads categories', () =>
   assert.equal(chosen[0].slot, 'lead');
 });
 
+test('a per-source cap keeps one prolific source from filling the edition', () => {
+  const candidates = [
+    ...Array.from({ length: 8 }, (_, i) => ({
+      id: 100 + i, category: 'regulation', relevance_score: 9 - i * 0.1,
+      is_periphery_pick: 0, relevance_status: 'core', source_name: 'MIT News · Research'
+    })),
+    { id: 200, category: 'neuroscience', relevance_score: 5, is_periphery_pick: 0, relevance_status: 'core', source_name: 'Nature' },
+    { id: 201, category: 'ecology', relevance_score: 4, is_periphery_pick: 0, relevance_status: 'core', source_name: 'eLife' }
+  ];
+  const chosen = select(candidates, { size: 7, peripheryShare: 0, maxPerCategory: 8, maxPerSource: 2 });
+  const fromMIT = chosen.filter(c => c.source_name === 'MIT News · Research').length;
+  assert.ok(fromMIT <= 2, 'no more than two entries from a single source');
+});
+
 test('a daily edition is generated, published and excludes vetoed material', async () => {
   const r = await generateEdition('daily', { trigger: 'test' });
   assert.equal(r.ok, true);
