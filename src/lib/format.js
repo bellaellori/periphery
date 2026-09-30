@@ -16,6 +16,15 @@ export const fmt = {
     if (!x) return '';
     return `${DAYS[x.getUTCDay()]}, ${x.getUTCDate()} ${MONTHS[x.getUTCMonth()]} ${x.getUTCFullYear()}`;
   },
+  /** Today's date as a masthead line, in Stockholm time: Wednesday, 30 September 2026 */
+  today(now = new Date(), timeZone = 'Europe/Stockholm') {
+    const p = Object.fromEntries(
+      new Intl.DateTimeFormat('en-GB', {
+        timeZone, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+      }).formatToParts(now).map(x => [x.type, x.value])
+    );
+    return `${p.weekday}, ${p.day} ${p.month} ${p.year}`;
+  },
   /** 7 September 2026 */
   date(d) {
     const x = parse(d);

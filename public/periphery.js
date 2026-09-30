@@ -3,6 +3,19 @@
 (function () {
   'use strict';
 
+  // The masthead date is rendered on the server (Stockholm time), and for the
+  // static site that is frozen at build time. Show the reader's own date instead.
+  var today = document.querySelector('[data-today]');
+  if (today && window.Intl && Intl.DateTimeFormat) {
+    try {
+      var p = {};
+      new Intl.DateTimeFormat('en-GB', {
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+      }).formatToParts(new Date()).forEach(function (x) { p[x.type] = x.value; });
+      today.textContent = p.weekday + ', ' + p.day + ' ' + p.month + ' ' + p.year;
+    } catch (e) { /* keep the server-rendered date */ }
+  }
+
   function setState(form, saved) {
     var btn = form.querySelector('.flagbtn');
     var label = form.querySelector('.flagbtn__label');
